@@ -1,27 +1,198 @@
+$rojo: #e32222;
+$rojo-oscuro: #a91f1f;
+$gris-input: #f3f4f6;
+$gris-texto: #6b7280;
+$texto: #1a1a1a;
+
+:host {
+    display: block;
+}
+
 .login {
-    max-width: 24rem;
-    margin: 0 auto;
-    padding: 2rem 1rem;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+    font-family: 'Montserrat', system-ui, sans-serif;
+    color: #fff;
+    background-color: $rojo;
+}
+
+.login__logo {
+    position: absolute;
+    top: 1rem;
+    right: -9rem;
+    width: 28rem;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.login__hero {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 3rem 1.5rem 3.5rem;
+}
+
+.login__card {
+    position: relative;
+    z-index: 1;
+}
+
+.login__eyebrow {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.login__title {
+    margin: 0;
+    font-size: 4rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.login__subtitle {
+    margin: 0.5rem 0 0;
+    font-size: 1rem;
+}
+
+.login__card {
+    background: #fff;
+    color: $texto;
+    padding: 1.75rem 1.5rem 2rem;
+    border-radius: 2rem 2rem 0 0;
+
+    h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+}
+
+.login__hint {
+    margin: 0.25rem 0 1.5rem;
+    font-size: 0.9rem;
+    color: $gris-texto;
 }
 
 form {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
 }
 
-input,
-button {
-    font-size: 1rem;
-    padding: 0.75rem;
-    border-radius: 0.5rem;
+label {
+    margin: 0.75rem 0 0.4rem;
+    font-size: 0.9rem;
+    font-weight: 600;
 }
 
-button {
-    margin-top: 1rem;
+input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 1rem;
+    font: inherit;
+    color: $texto;
+    background: $gris-input;
+    border: 2px solid transparent;
+    border-radius: 0.75rem;
+
+    &::placeholder {
+        color: #9ca3af;
+    }
+
+    &:focus {
+        outline: none;
+        border-color: $rojo;
+    }
+}
+
+.password-field {
+    position: relative;
+
+    input {
+        padding-right: 3rem;
+    }
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 0.75rem;
+    transform: translateY(-50%);
+    display: flex;
+    padding: 0.25rem;
+    background: none;
+    border: none;
+    color: $gris-texto;
+    cursor: pointer;
 }
 
 .field-error,
 .form-error {
+    margin-top: 0.4rem;
+    font-size: 0.85rem;
     color: #b00020;
+}
+
+.form-error {
+    margin-bottom: 0;
+}
+
+.submit {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    font: inherit;
+    font-weight: 700;
+    color: #fff;
+    background: $rojo;
+    border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: default;
+    }
+}
+
+// ESTILOS PC
+
+@media (min-width: 768px) {
+    .login {
+        align-items: center;
+        justify-content: center;
+    }
+
+    // Logo abajo a la izquierda, cortado por el borde
+    .login__logo {
+        top: auto;
+        right: auto;
+        bottom: -6rem;
+        left: -8rem;
+        width: 36rem;
+    }
+
+    // El título pasa a estar centrado encima del modal
+    .login__hero {
+        flex: none;
+        align-items: center;
+        text-align: center;
+        padding: 0 1.5rem 2rem;
+    }
+
+    // La tarjeta se convierte en modal centrado
+    .login__card {
+        width: 100%;
+        max-width: 26rem;
+        padding: 2rem;
+        border-radius: 1.5rem;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    }
 }

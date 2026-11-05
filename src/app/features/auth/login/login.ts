@@ -28,6 +28,7 @@ export class LoginComponent {
 
   readonly loading = signal(false);
   readonly error = signal<string | null>(null); //para mensaje de error
+  readonly showPassword = signal(false); //para el ojo de la contraseña
 
   readonly form = this.fb.nonNullable.group({ //crea un grupo de formulario
 
@@ -35,6 +36,12 @@ export class LoginComponent {
     password: ['', [Validators.required, Validators.minLength(6)]],
 
   });
+
+  togglePassword(): void {
+
+    this.showPassword.update((visible: boolean) => !visible);
+
+  }
 
   async submit(): Promise<void> {
 
