@@ -1,0 +1,33 @@
+<ngx-scanner-qrcode [config]="config" (event)="alLeer($event)" />
+
+@if (estado() === 'escaneando') {
+  <div class="visor" aria-hidden="true">
+    <span class="esquina arriba-izquierda"></span>
+    <span class="esquina arriba-derecha"></span>
+    <span class="esquina abajo-izquierda"></span>
+    <span class="esquina abajo-derecha"></span>
+    <span class="linea"></span>
+  </div>
+}
+
+@switch (estado()) {
+  @case ('cargando') {
+    <p class="aviso">Abriendo la cámara…</p>
+  }
+  @case ('sin-permiso') {
+    <div class="aviso">
+      <p>Necesitamos permiso para usar la cámara. Actívalo en los ajustes del navegador.</p>
+      <button type="button" (click)="arrancar()">Reintentar</button>
+    </div>
+  }
+  @case ('sin-camara') {
+    <p class="aviso">No se ha encontrado ninguna cámara en este dispositivo.</p>
+  }
+  @case ('error') {
+    <div class="aviso">
+      <p>No se ha podido abrir la cámara.</p>
+      <button type="button" (click)="arrancar()">Reintentar</button>
+    </div>
+  }
+}
+ 
