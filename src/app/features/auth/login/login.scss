@@ -1,0 +1,27 @@
+.login {
+    max-width: 24rem;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+input,
+button {
+    font-size: 1rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+}
+
+button {
+    margin-top: 1rem;
+}
+
+.field-error,
+.form-error {
+    color: #b00020;
+}
