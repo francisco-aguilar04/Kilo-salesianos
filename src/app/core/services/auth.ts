@@ -14,7 +14,8 @@ export class Auth {
     private readonly firebaseAuth: FirebaseAuth = inject(FirebaseAuth);
 
     // null = sin sesión (o aún cargando)
-    readonly user = toSignal(user(this.firebaseAuth), { initialValue: null });
+    readonly user$ = user(this.firebaseAuth); //guarda el estado user incluso al salir y entrar
+    readonly user = toSignal(this.user$, { initialValue: null });
 
     //recibe un correo y contraseña y firebase usa su authenticador para ver que pueda inicar sesion
     async login(email: string, password: string): Promise<void> {
