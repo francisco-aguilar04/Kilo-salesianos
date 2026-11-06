@@ -1,1 +1,8 @@
-<p>inicio works!</p>
+<main class="inicio">
+    <h1>Campaña del Kilo</h1>
+    <p>Sesión iniciada como {{ authService.user()?.email }}</p>
+    <p>Rol: {{ authService.rol() }}</p>
+    <button type="button" (click)="logout()">Cerrar sesión</button>
+
+    <app-navbar></app-navbar>
+</main>
