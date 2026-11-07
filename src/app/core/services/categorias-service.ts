@@ -1,6 +1,6 @@
 import { inject, Service } from '@angular/core';
 import { Categoria } from '../interfaces/categoria';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import {
   collection,
   collectionData,
@@ -9,6 +9,7 @@ import {
   query,
   where,
 } from '@angular/fire/firestore';
+import { QrInvalidoError } from '../errors/qr-invalid-error';
 
 @Service()
 export class CategoriasService {
@@ -25,5 +26,21 @@ export class CategoriasService {
   obtenerActivas(): Observable<Categoria[]> {
     const consulta = query(collection(this.firestore, 'categorias'), where('activa', '==', true));
     return collectionData(consulta, { idField: 'id' }) as Observable<Categoria[]>;
+  }
+
+  //en este caso usamos la forma moder de async await, pero tambie nse pude con try catch 
+  async validarCodigo(codigo: string): Promise<Categoria> {
+    const consulta = query(
+      collection(this.firestore, 'categorias'),
+      where('codigoQr', '==', codigo),
+    );
+    const encontradas = await firstValueFrom(
+      collectionData(consulta, { idField: 'id' }) as Observable<Categoria[]>,
+    );
+    const categoria = encontradas[0];
+
+    if (!categoria) throw new QrInvalidoError(codigo, 'no-existe');
+    if (!categoria.activa) throw new QrInvalidoError(codigo, 'inactiva');
+    return categoria;
   }
 }

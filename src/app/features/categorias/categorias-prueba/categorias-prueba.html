@@ -1,5 +1,0 @@
-@for (c of categorias(); track c.id) {
-  <p [style.color]="c.color">{{ c.nombre }} ({{ c.codigoQr }})</p>
-} @empty {
-  <p>No hay categorías (todavía)…</p>
-}

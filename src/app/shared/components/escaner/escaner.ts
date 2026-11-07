@@ -99,7 +99,6 @@ export class Escaner implements AfterViewInit, OnDestroy {
 
     this.ultimoCodigo = codigo;
     this.ultimaLectura = ahora;
-    console.log('QR leído:', codigo);
     this.codigoLeido.emit(codigo);
   }
 
