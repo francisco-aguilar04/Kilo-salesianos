@@ -1,0 +1,49 @@
+.navbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom));
+    background: #fff;
+    border-top: 1px solid #c9c9c9;
+}
+
+.navbar__item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    font-size: 0.7rem;
+    color: #666;
+    text-decoration: none;
+}
+
+.navbar__icono {
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
+.navbar__item--activo {
+    color: #e32124;
+    font-weight: 600;
+}
+
+/* Botón central de escanear */
+.navbar__item--destacado .navbar__icono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    margin-top: -1.75rem;
+    border-radius: 50%;
+    background: #e32124;
+    color: #fff;
+    /* el icono se queda blanco aunque el item esté activo */
+    font-size: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}

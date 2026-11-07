@@ -1,0 +1,9 @@
+<nav class="navbar">
+    @for (item of items(); track item.ruta) {
+    <a class="navbar__item" [class.navbar__item--destacado]="item.destacado" [routerLink]="item.ruta"
+        routerLinkActive="navbar__item--activo" [routerLinkActiveOptions]="{ exact: true }">
+        <span class="navbar__icono"><i class="bi" [class]="'bi bi-' + item.icono"></i></span>
+        <span class="navbar__etiqueta">{{ item.etiqueta }}</span>
+    </a>
+    }
+</nav>
