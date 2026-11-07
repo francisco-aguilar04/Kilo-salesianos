@@ -1,8 +1,19 @@
-<main class="inicio">
-    <h1>Campaña del Kilo</h1>
-    <p>Sesión iniciada como {{ authService.user()?.email }}</p>
-    <p>Rol: {{ authService.rol() }}</p>
-    <button type="button" (click)="logout()">Cerrar sesión</button>
+<div class="camara">
+  <app-escaner (codigoLeido)="alLeerCodigo($event)" />
 
-    <app-navbar></app-navbar>
-</main>
+  <header class="barra">
+    <div class="atras-grupo">
+      <button type="button" class="atras" aria-label="Introducir a mano" (click)="atras()">
+        <i class="bi bi-arrow-left"></i>
+      </button>
+      <span class="a-mano">A mano</span>
+    </div>
+    <h1 class="titulo">Escanear</h1>
+  </header>
+
+  @if (aviso(); as a) {
+    <app-aviso class="aviso-flotante" [tipo]="a.tipo" [titulo]="a.titulo" [mensaje]="a.mensaje" />
+  }
+
+  <app-navbar />
+</div>

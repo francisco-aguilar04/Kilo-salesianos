@@ -14,4 +14,4 @@ export interface Caja {
     fechaApertura: Timestamp;
     fechaCierre: Timestamp | null;
 
-}
+} 

@@ -1,2 +1,19 @@
-/* You can add global styles to this file, and also import other style files */
-@import 'bootstrap-icons/font/bootstrap-icons.css';
+:root {
+  --rojo-primario: #e32122;
+  --camara-fondo: #141416;
+  --neutro-blanco: #ffffff;
+  --neutro-texto: #1f1f23;
+  --neutro-texto-secundario: #6b6b73;
+  --neutro-fondo: #f6f6f8;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+app-root {
+  display: block;
+  height: 100%;
+}
