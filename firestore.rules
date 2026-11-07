@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function haySesion() {
+      return request.auth != null;
+    }
+
+    // Cada usuario lee solo su propio documento.
+    // Nadie escribe desde la app: si no, un voluntario podría ponerse rol coordinador.
+    // Los usuarios y sus roles se gestionan desde la consola de Firebase.
+    match /usuarios/{uid} {
+      allow read: if haySesion() && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    // Por ahora, cualquier usuario con sesión. Las reglas de cada slice las irán afinando.
+    match /categorias/{id} {
+      allow read, write: if haySesion();
+    }
+
+    match /asociaciones/{id} {
+      allow read, write: if haySesion();
+    }
+
+    match /cajas/{id} {
+      allow read, write: if haySesion();
+    }
+
+    // Cualquier otra colección queda denegada por defecto.
+  }
+}
