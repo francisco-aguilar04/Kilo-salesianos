@@ -32,6 +32,8 @@ export class Escaner implements AfterViewInit, OnDestroy {
   private static readonly ESPERA_MS = 3000;
   private ultimoCodigo = '';
   private ultimaLectura = 0;
+  private ultimoVariosCodigos = 0;
+  private static readonly BLOQUEO_VARIOS_MS = 1500;
 
   //Comienza el arranque de la camara
 
@@ -75,10 +77,22 @@ export class Escaner implements AfterViewInit, OnDestroy {
   //Por param entra un qr y adentro hace la magia
   //La librería por default analiza 30 fps, de esta forma ignoramos que esto suceda
   protected alLeer(resultados: ScannerQRCodeResult[]): void {
-    const codigo = resultados[0]?.value?.trim();
-    if (!codigo) return;
+    // Si hay más de un código distinto a la vez en la cámara, no sabemos cuál quiere el usuario: no emitimos nada.
+    const codigos = new Set(resultados.map((r) => r.value?.trim()).filter(Boolean));
 
     const ahora = Date.now();
+
+    if (codigos.size > 1) {
+      this.ultimoVariosCodigos = ahora; // apunto cuándo vi varios
+      return;
+    }
+    if (codigos.size === 0) return;
+
+    // Si hace poco había varios QR, esta lectura suelta no es de fiar
+    if (ahora - this.ultimoVariosCodigos < Escaner.BLOQUEO_VARIOS_MS) return;
+    if (codigos.size !== 1) return;
+    const [codigo] = codigos;
+
     const esRepetido =
       codigo === this.ultimoCodigo && ahora - this.ultimaLectura < Escaner.ESPERA_MS;
     if (esRepetido) return;
