@@ -1,32 +1,65 @@
-import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { Auth } from '../../../core/services/auth';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Escaner } from '../../../shared/components/escaner/escaner';
+import { Aviso, TipoAviso } from '../../../shared/components/aviso/aviso';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar';
+import { CategoriasService } from '../../../core/services/categorias-service';
+import { QrInvalidoError } from '../../../core/errors/qr-invalid-error';
+
+interface AvisoPantalla {
+  tipo: TipoAviso;
+  titulo: string;
+  mensaje: string;
+}
 
 @Component({
   selector: 'app-inicio',
   standalone: true,
-  imports: [NavbarComponent],
+  imports: [Escaner, Aviso, NavbarComponent],
   templateUrl: './inicio.html',
-  styles: `
-    .inicio {
-      max-width: 24rem;
-      margin: 0 auto;
-      padding: 2rem 1rem;
-    }
-    button {
-      font-size: 1rem;
-      padding: 0.75rem;
-      border-radius: 0.5rem;
-    }
-  `,
+  styleUrl: './inicio.scss',
 })
 export class InicioComponent {
-  readonly authService = inject(Auth);
-  private readonly router = inject(Router);
+  private readonly categorias = inject(CategoriasService);
+  private readonly destroyRef = inject(DestroyRef);
+  private temporizador?: ReturnType<typeof setTimeout>;
 
-  async logout(): Promise<void> {
-    await this.authService.logout();
-    await this.router.navigateByUrl('/login');
+  protected readonly aviso = signal<AvisoPantalla | null>(null);
+
+  constructor() {
+    this.destroyRef.onDestroy(() => clearTimeout(this.temporizador));
+  }
+
+  protected atras(): void {
+    // TODO: según el Figma (1.1), esta flecha lleva a "Introducir a mano".
+    // Esa pantalla aún no existe; cuando esté, navegar a su ruta aquí.
+  }
+
+  protected async alLeerCodigo(codigo: string): Promise<void> {
+    try {
+      const categoria = await this.categorias.validarCodigo(codigo);
+      const nombre = categoria.nombre.charAt(0).toUpperCase() + categoria.nombre.slice(1);
+      this.mostrarAviso({ tipo: 'exito', titulo: nombre, mensaje: 'Categoría detectada' });
+    } catch (e) {
+      if (e instanceof QrInvalidoError) {
+        this.mostrarAviso({
+          tipo: 'aviso',
+          titulo: 'QR no válido',
+          mensaje: 'Avisa al coordinador',
+        });
+      } else {
+        console.error(e);
+        this.mostrarAviso({
+          tipo: 'error',
+          titulo: 'Ha ocurrido un error',
+          mensaje: 'Inténtalo de nuevo',
+        });
+      }
+    }
+  }
+
+  private mostrarAviso(aviso: AvisoPantalla, ms = 3000): void {
+    clearTimeout(this.temporizador);
+    this.aviso.set(aviso);
+    this.temporizador = setTimeout(() => this.aviso.set(null), ms);
   }
 }
