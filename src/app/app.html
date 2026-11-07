@@ -1,1 +1,7 @@
-<router-outlet></router-outlet>
+<div class="app-contenido">
+    <router-outlet />
+</div>
+
+@if (mostrarNavbar()) {
+<app-navbar />
+}
