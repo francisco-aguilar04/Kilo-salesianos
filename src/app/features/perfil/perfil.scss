@@ -1,0 +1,203 @@
+.perfil {
+    min-height: 100%;
+    background: #f7f7f9;
+    padding-bottom: calc(var(--navbar-alto) + env(safe-area-inset-bottom, 0px) + 1rem);
+}
+
+.cabecera {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: calc(env(safe-area-inset-top, 0px) + 2.5rem) 1.5rem 2rem;
+    background: #e32124;
+    border-radius: 0 0 2rem 2rem;
+    color: #fff;
+}
+
+.avatar {
+    display: grid;
+    place-items: center;
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
+    background: #fff;
+    color: #e32124;
+    font-size: 1.75rem;
+    font-weight: 800;
+}
+
+.nombre {
+    margin: 1rem 0 0.25rem;
+    font-size: 1.4rem;
+}
+
+.email {
+    margin: 0 0 0.75rem;
+    font-size: 0.85rem;
+    opacity: 0.9;
+}
+
+.rol {
+    padding: 0.25rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.25);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.dia {
+    max-width: 24rem;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 0;
+}
+
+.dia__titulo {
+    margin: 0 0 0.75rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #666;
+}
+
+.dia__tarjetas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.tarjeta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1rem;
+    border: 1px solid #e5e5e5;
+    border-radius: 1rem;
+    background: #fff;
+}
+
+.tarjeta__valor {
+    font-size: 1.6rem;
+    font-weight: 800;
+}
+
+.tarjeta__etiqueta {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.cerrar-sesion {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 0;
+    border-radius: 1rem;
+    background: #efeff2;
+    color: #e32124;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+@media (min-width: 768px) {
+    .perfil {
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+        min-height: 100%;
+    }
+
+    // Perfil en horizontal, en tres columnas:
+    // avatar | nombre y email | rol a la derecha
+    .cabecera {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        column-gap: 2.5rem;
+        align-items: center;
+        justify-items: start;
+        padding: calc(env(safe-area-inset-top, 0px) + 2.5rem) max(2rem, calc((100% - 72rem) / 2)) 2.5rem;
+    }
+
+    .avatar {
+        grid-row: 1 / span 2;
+        width: 8rem;
+        height: 8rem;
+        font-size: 3rem;
+    }
+
+    .nombre {
+        grid-column: 2;
+        align-self: end;
+        margin: 0 0 0.25rem;
+        font-size: 2.75rem;
+        line-height: 1.1;
+    }
+
+    .email {
+        grid-column: 2;
+        align-self: start;
+        margin: 0;
+        font-size: 1.25rem;
+    }
+
+    .rol {
+        grid-column: 3;
+        grid-row: 1 / span 2;
+        align-self: center;
+        padding: 0.8rem 2.2rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    // "Tu día" ocupa el espacio restante; el botón queda abajo del todo
+    .dia {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 72rem;
+        padding: 2rem 2rem 1rem;
+    }
+
+    .dia__titulo {
+        margin-bottom: 1rem;
+        font-size: 1rem;
+    }
+
+    // Tarjetas con altura limitada (ya no se estiran)
+    .dia__tarjetas {
+        gap: 1.5rem;
+    }
+
+    .tarjeta {
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 1.75rem 2rem;
+        border-radius: 1.5rem;
+    }
+
+    .tarjeta__valor {
+        font-size: 3.25rem;
+        line-height: 1;
+    }
+
+    .tarjeta__etiqueta {
+        font-size: 1.1rem;
+    }
+
+    // Botón legible: rojo sólido, texto blanco y más grande
+    .cerrar-sesion {
+        width: auto;
+        align-self: center;
+        margin-top: auto;
+        padding: 0.9rem 2.5rem;
+        background: #e32124;
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 700;
+
+        &:hover {
+            background: #c81c1f;
+        }
+    }
+}

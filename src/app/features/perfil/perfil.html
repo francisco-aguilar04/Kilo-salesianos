@@ -1,0 +1,23 @@
+<main class="perfil">
+    <header class="cabecera">
+        <div class="avatar">{{ iniciales() }}</div>
+        <h1 class="nombre">{{ usuario()?.nombre }}</h1>
+        <p class="email">{{ usuario()?.email }}</p>
+        <span class="rol">{{ rolTexto() }}</span>
+    </header>
+
+    <section class="dia">
+        <h2 class="dia__titulo">Tu día</h2>
+        <div class="dia__tarjetas">
+            <div class="tarjeta">
+                <span class="tarjeta__valor">{{ cajasCerradas() }}</span>
+                <span class="tarjeta__etiqueta">cajas cerradas</span>
+            </div>
+            <div class="tarjeta">
+                <span class="tarjeta__valor">{{ kgTexto() }}</span>
+                <span class="tarjeta__etiqueta">recogidos</span>
+            </div>
+        </div>
+        <button type="button" class="cerrar-sesion" (click)="logout()">Cerrar sesión</button>
+    </section>
+</main>
