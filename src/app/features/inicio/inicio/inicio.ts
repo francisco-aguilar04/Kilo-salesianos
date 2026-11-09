@@ -3,6 +3,8 @@ import { Escaner } from '../../../shared/components/escaner/escaner';
 import { Aviso, TipoAviso } from '../../../shared/components/aviso/aviso';
 import { CategoriasService } from '../../../core/services/categorias-service';
 import { QrInvalidoError } from '../../../core/errors/qr-invalid-error';
+import { CajaService } from '../../../core/services/caja-service';
+import { Caja } from '../../../core/interfaces/caja';
 
 interface AvisoPantalla {
   tipo: TipoAviso;
@@ -23,6 +25,10 @@ export class InicioComponent {
   private temporizador?: ReturnType<typeof setTimeout>;
 
   protected readonly aviso = signal<AvisoPantalla | null>(null);
+
+  // null = el voluntario no tiene caja abierta. Esto se hace debido a que las pantallas cambian según si hay o no caja abierta, de esta fornma el html oslo tiene que preguntar al signal
+
+  protected readonly cajaAbierta = signal<Caja | null>(null);
 
   constructor() {
     this.destroyRef.onDestroy(() => clearTimeout(this.temporizador));

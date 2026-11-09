@@ -11,6 +11,7 @@ import { ROLES } from './core/constants/roles';
 export const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [guestGuard] }, // dice que antes de ir a 'x' pase por el guard
   { path: '', component: InicioComponent, canActivate: [authGuard] }, // HU-12
+  { path: 'cajas', component: MisCajasComponent, canActivate: [authGuard] },
   { path: 'escanear', component: InicioComponent, canActivate: [authGuard] }, // la cámara
   { path: 'perfil', component: PerfilComponent, canActivate: [authGuard] }, // HU-13
   // Solo coordinador

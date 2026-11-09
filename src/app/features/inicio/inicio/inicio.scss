@@ -58,6 +58,41 @@
   position: absolute;
   left: 24px;
   right: 24px;
-  bottom: calc(var(--navbar-alto) + env(safe-area-inset-bottom, 0px) + 1.5rem); // por encima de la navbar
+  bottom: calc(
+    var(--navbar-alto) + env(safe-area-inset-bottom, 0px) + 1.5rem
+  ); // por encima de la navbar
   z-index: 5;
+}
+
+.pista {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: calc(7rem + env(safe-area-inset-bottom)); // mismo hueco que .aviso-flotante
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(31, 31, 35, 0.85);
+  color: var(--neutro-blanco);
+}
+.pista__icono {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--rojo-primario);
+  font-size: 1.2rem;
+}
+.pista__titulo {
+  font-size: 1rem;
+}
+.pista__texto {
+  margin: 2px 0 0;
+  font-size: 0.85rem;
+  opacity: 0.85;
 }
