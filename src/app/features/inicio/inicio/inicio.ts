@@ -5,6 +5,8 @@ import { CategoriasService } from '../../../core/services/categorias-service';
 import { QrInvalidoError } from '../../../core/errors/qr-invalid-error';
 import { CajaService } from '../../../core/services/caja-service';
 import { Caja } from '../../../core/interfaces/caja';
+import { Categoria } from '../../../core/interfaces/categoria';
+import { HojaNuevaCaja } from '../../hoja-nueva-caja/hoja-nueva-caja';
 
 interface AvisoPantalla {
   tipo: TipoAviso;
@@ -15,7 +17,7 @@ interface AvisoPantalla {
 @Component({
   selector: 'app-inicio',
   standalone: true,
-  imports: [Escaner, Aviso],
+  imports: [Escaner, Aviso, HojaNuevaCaja],
   templateUrl: './inicio.html',
   styleUrl: './inicio.scss',
 })
@@ -30,6 +32,10 @@ export class InicioComponent {
 
   protected readonly cajaAbierta = signal<Caja | null>(null);
 
+  // Categoría leída que espera confirmación. Si no es null, la hoja está abierta.
+  protected readonly categoriaPendiente = signal<Categoria | null>(null);
+  protected readonly creandoCaja = signal(false);
+
   constructor() {
     this.destroyRef.onDestroy(() => clearTimeout(this.temporizador));
   }
@@ -40,10 +46,13 @@ export class InicioComponent {
   }
 
   protected async alLeerCodigo(codigo: string): Promise<void> {
+    if (this.categoriaPendiente()) return; // con la hoja abierta, la cámara no hace nada
     try {
       const categoria = await this.categorias.validarCodigo(codigo);
-      const nombre = categoria.nombre.charAt(0).toUpperCase() + categoria.nombre.slice(1);
-      this.mostrarAviso({ tipo: 'exito', titulo: nombre, mensaje: 'Categoría detectada' });
+      if (!this.cajaAbierta()) {
+        this.categoriaPendiente.set(categoria); // abre la hoja
+        return;
+      }
     } catch (e) {
       if (e instanceof QrInvalidoError) {
         this.mostrarAviso({
@@ -66,5 +75,14 @@ export class InicioComponent {
     clearTimeout(this.temporizador);
     this.aviso.set(aviso);
     this.temporizador = setTimeout(() => this.aviso.set(null), ms);
+  }
+  protected confirmarNuevaCaja(): void {
+    // Checkpoint 3: aquí llamaremos a CajasService.abrirCaja.
+    console.log('Crear caja de', this.categoriaPendiente()?.nombre);
+    this.categoriaPendiente.set(null);
+  }
+
+  protected cancelarNuevaCaja(): void {
+    this.categoriaPendiente.set(null); // cierra la hoja y la cámara vuelve a leer
   }
 }

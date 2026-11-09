@@ -20,7 +20,14 @@
       </div>
     </div>
   }
-
+  @if (categoriaPendiente(); as categoria) {
+    <app-hoja-nueva-caja
+      [categoria]="categoria"
+      [creando]="creandoCaja()"
+      (crear)="confirmarNuevaCaja()"
+      (cancelar)="cancelarNuevaCaja()"
+    />
+  }
   @if (aviso(); as a) {
     <app-aviso class="aviso-flotante" [tipo]="a.tipo" [titulo]="a.titulo" [mensaje]="a.mensaje" />
   }
