@@ -58,6 +58,6 @@
   position: absolute;
   left: 24px;
   right: 24px;
-  bottom: calc(7rem + env(safe-area-inset-bottom)); // por encima de la navbar
+  bottom: calc(var(--navbar-alto) + env(safe-area-inset-bottom, 0px) + 1.5rem); // por encima de la navbar
   z-index: 5;
 }

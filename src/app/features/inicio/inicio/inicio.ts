@@ -1,7 +1,6 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { Escaner } from '../../../shared/components/escaner/escaner';
 import { Aviso, TipoAviso } from '../../../shared/components/aviso/aviso';
-import { NavbarComponent } from '../../../shared/components/navbar/navbar';
 import { CategoriasService } from '../../../core/services/categorias-service';
 import { QrInvalidoError } from '../../../core/errors/qr-invalid-error';
 
@@ -14,7 +13,7 @@ interface AvisoPantalla {
 @Component({
   selector: 'app-inicio',
   standalone: true,
-  imports: [Escaner, Aviso, NavbarComponent],
+  imports: [Escaner, Aviso],
   templateUrl: './inicio.html',
   styleUrl: './inicio.scss',
 })
