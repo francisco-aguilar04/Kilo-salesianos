@@ -14,6 +14,7 @@ import { firstValueFrom, map, Observable } from 'rxjs';
 import { Caja } from '../interfaces/caja';
 import { ESTADOS_CAJA } from '../constants/estados-caja';
 import { Categoria } from '../interfaces/categoria';
+import { PESO_MAXIMO_KG } from '../constants/peso-cajas';
 
 @Service()
 export class CajasService {
@@ -62,6 +63,32 @@ export class CajasService {
     );
     return (collectionData(consulta, { idField: 'id' }) as Observable<Caja[]>).pipe(
       map((cajas) => cajas[0] ?? null),
+    );
+  }
+
+  /** Cierra la caja: estado Cerrada, peso y fecha de cierre. Falla si está vacía o ya no está abierta. */
+  async cerrarCaja(cajaId: string, pesoKg: number): Promise<void> {
+    //Comprobacion
+    if (!(pesoKg > 0 && pesoKg <= PESO_MAXIMO_KG)) throw new Error('Peso no válido');
+
+    //Realiza la transaccion a la bdd para guardar la caja
+    return runInInjectionContext(this.injector, () =>
+      runTransaction(this.firestore, async (tx) => {
+        const refCaja = doc(this.firestore, 'cajas', cajaId);
+        const snap = await tx.get(refCaja);
+        if (!snap.exists()) throw new Error('La caja no existe');
+
+        const caja = snap.data() as Caja;
+        if (caja.estado !== ESTADOS_CAJA.ABIERTA)
+          throw new Error(`La caja ${caja.codigo} ya no está abierta`);
+        if (caja.unidades === 0) throw new Error('La caja está vacía'); // EX-04
+
+        tx.update(refCaja, {
+          estado: ESTADOS_CAJA.CERRADA,
+          pesoKg,
+          fechaCierre: serverTimestamp(),
+        });
+      }),
     );
   }
 }

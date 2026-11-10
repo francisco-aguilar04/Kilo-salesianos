@@ -29,6 +29,35 @@
     />
   }
   @if (aviso(); as a) {
-    <app-aviso class="aviso-flotante" [tipo]="a.tipo" [titulo]="a.titulo" [mensaje]="a.mensaje" />
+    <app-aviso
+      class="aviso-flotante"
+      [class.sobre-boton]="cajaAbierta()"
+      [tipo]="a.tipo"
+      [titulo]="a.titulo"
+      [mensaje]="a.mensaje"
+    />
+  }
+
+  @if (cajaAbierta(); as caja) {
+    <button
+      type="button"
+      class="boton-cerrar"
+      [class.vacia]="caja.unidades === 0"
+      (click)="abrirCierre()"
+    >
+      Cerrar caja
+    </button>
+  }
+
+  @if (hojaCerrarAbierta()) {
+    @if (cajaAbierta(); as caja) {
+      <app-hoja-cerrar-caja
+        [caja]="caja"
+        [categoria]="categoriaCaja()"
+        [guardando]="cerrandoCaja()"
+        (confirmar)="confirmarCierre($event)"
+        (cancelar)="cancelarCierre()"
+      />
+    }
   }
 </div>
