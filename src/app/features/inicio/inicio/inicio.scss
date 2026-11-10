@@ -96,3 +96,23 @@
   font-size: 0.85rem;
   opacity: 0.85;
 }
+.boton-cerrar {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: calc(var(--navbar-alto) + env(safe-area-inset-bottom, 0px) + 1.5rem);
+  z-index: 5;
+  height: 56px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--rojo-primario);
+  color: var(--neutro-blanco);
+  font: inherit;
+  font-weight: 600;
+  &.vacia {
+    opacity: 0.45;
+  }
+}
+.aviso-flotante.sobre-boton {
+  bottom: calc(var(--navbar-alto) + env(safe-area-inset-bottom, 0px) + 1.5rem + 56px + 16px);
+}

@@ -1,0 +1,125 @@
+.capa {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.hoja {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 21; // por encima de la capa y de la navbar
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 12px 24px calc(24px + env(safe-area-inset-bottom));
+  border-radius: 24px 24px 0 0;
+  background: var(--neutro-blanco);
+  color: var(--neutro-texto);
+  animation: sube 0.25s ease-out;
+}
+
+.asa {
+  align-self: center;
+  width: 40px;
+  height: 5px;
+  border-radius: 3px;
+  background: #d9d9de;
+}
+
+.titulo {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.texto {
+  margin: 4px 0 0;
+  font-size: 0.875rem;
+  color: var(--neutro-texto-secundario);
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.campo-etiqueta {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.campo input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 56px;
+  padding: 0 16px;
+  font: inherit;
+  font-size: 1.1rem;
+  color: var(--neutro-texto);
+  background: #f3f4f6;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  &:focus {
+    outline: none;
+    border-color: var(--rojo-primario);
+  }
+  &.invalido {
+    border-color: var(--rojo-primario);
+  }
+}
+
+.ayuda,
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  font-size: 0.85rem;
+}
+.ayuda {
+  color: var(--neutro-texto-secundario);
+}
+.error {
+  color: var(--rojo-primario);
+  font-weight: 500;
+}
+
+.boton {
+  height: 56px;
+  border: 0;
+  border-radius: 14px;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+.primario {
+  background: var(--rojo-primario);
+  color: var(--neutro-blanco);
+}
+.secundario {
+  background: #efeff2;
+  color: var(--neutro-texto);
+}
+
+@keyframes sube {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
