@@ -11,8 +11,24 @@
     <h1 class="titulo">Escanear</h1>
   </header>
 
-  @if (aviso(); as a) {
-  <app-aviso class="aviso-flotante" [tipo]="a.tipo" [titulo]="a.titulo" [mensaje]="a.mensaje" />
+  @if (!cajaAbierta() && !aviso()) {
+    <div class="pista">
+      <span class="pista__icono"><i class="bi bi-camera"></i></span>
+      <div>
+        <strong class="pista__titulo">Apunta al QR de un alimento</strong>
+        <p class="pista__texto">El primer alimento abre una caja nueva de su categoría.</p>
+      </div>
+    </div>
   }
-
+  @if (categoriaPendiente(); as categoria) {
+    <app-hoja-nueva-caja
+      [categoria]="categoria"
+      [creando]="creandoCaja()"
+      (crear)="confirmarNuevaCaja()"
+      (cancelar)="cancelarNuevaCaja()"
+    />
+  }
+  @if (aviso(); as a) {
+    <app-aviso class="aviso-flotante" [tipo]="a.tipo" [titulo]="a.titulo" [mensaje]="a.mensaje" />
+  }
 </div>

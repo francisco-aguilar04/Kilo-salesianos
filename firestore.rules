@@ -23,6 +23,7 @@ service cloud.firestore {
       allow read, write: if haySesion();
     }
 
+    //Permite la collecion nueva
     match /cajas/{id} {
       allow read, write: if haySesion();
     }

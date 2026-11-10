@@ -20,11 +20,6 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard(ROLES.COORDINADOR)],
   },
   {
-    path: 'cajas',
-    component: MisCajasComponent, // provisional: cuando exista la pantalla de cajas del coordinador, se cambia
-    canActivate: [authGuard, roleGuard(ROLES.COORDINADOR)],
-  },
-  {
     path: 'asociaciones',
     component: AsociacionesComponent,
     canActivate: [authGuard, roleGuard(ROLES.COORDINADOR)],
