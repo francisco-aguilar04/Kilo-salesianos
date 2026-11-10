@@ -1,0 +1,38 @@
+<main class="mis-cajas">
+    <header class="cabecera">
+        <h1>Mis cajas</h1>
+        <p class="fecha">Hoy, {{ fechaHoy }}</p>
+    </header>
+
+    @if (cajas() !== null && total() === 0) {
+    <p class="vacio">Aún no tienes cajas. Escanea un alimento para abrir una.</p>
+    }
+
+    @if (abiertas().length > 0) {
+    <section class="grupo">
+        <h2 class="grupo__titulo">Abierta</h2>
+        @for (caja of abiertas(); track caja.id) {
+        <app-tarjeta-caja [caja]="caja" [categoria]="categoriaDe(caja)" />
+        }
+    </section>
+    }
+
+    @if (cerradas().length > 0) {
+    <section class="grupo">
+        <h2 class="grupo__titulo">Cerrada, falta asignar</h2>
+        @for (caja of cerradas(); track caja.id) {
+        <app-tarjeta-caja [caja]="caja" [categoria]="categoriaDe(caja)" [interactiva]="true"
+            (seleccionada)="abrirAsignacion($event)" />
+        }
+    </section>
+    }
+
+    @if (asignadas().length > 0) {
+    <section class="grupo">
+        <h2 class="grupo__titulo">Asignadas</h2>
+        @for (caja of asignadas(); track caja.id) {
+        <app-tarjeta-caja [caja]="caja" [categoria]="categoriaDe(caja)" />
+        }
+    </section>
+    }
+</main>

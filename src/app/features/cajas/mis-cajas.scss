@@ -1,0 +1,37 @@
+.mis-cajas {
+    max-width: 24rem;
+    margin: 0 auto;
+    padding: calc(env(safe-area-inset-top, 0px) + 2rem) 1rem calc(var(--navbar-alto) + env(safe-area-inset-bottom, 0px) + 1rem);
+}
+
+.cabecera h1 {
+    margin: 0;
+    font-size: 1.75rem;
+}
+
+.fecha {
+    margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+}
+
+.grupo__titulo {
+    margin: 0;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #666;
+}
+
+.vacio {
+    margin-top: 2rem;
+    text-align: center;
+    color: #666;
+}

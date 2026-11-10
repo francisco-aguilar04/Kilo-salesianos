@@ -66,6 +66,19 @@ export class CajasService {
     );
   }
 
+  /** Todas las cajas del voluntario en tiempo real, las más recientes primero.
+   *  Se ordena en local para no necesitar un índice compuesto en Firestore. */
+  obtenerCajasDe(uid: string): Observable<Caja[]> {
+    const consulta = query(collection(this.firestore, 'cajas'), where('creadaPor', '==', uid));
+    return (collectionData(consulta, { idField: 'id' }) as Observable<Caja[]>).pipe(
+      map((cajas) =>
+        [...cajas].sort(
+          (a, b) => (b.fechaApertura?.toMillis() ?? 0) - (a.fechaApertura?.toMillis() ?? 0),
+        ),
+      ),
+    );
+  }
+
   /** Cierra la caja: estado Cerrada, peso y fecha de cierre. Falla si está vacía o ya no está abierta. */
   async cerrarCaja(cajaId: string, pesoKg: number): Promise<void> {
     //Comprobacion

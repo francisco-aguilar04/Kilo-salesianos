@@ -1,0 +1,8 @@
+<button type="button" class="tarjeta" [disabled]="!interactiva()" (click)="seleccionada.emit(caja())">
+    <span class="icono" [style.background]="color()">{{ prefijo() }}</span>
+    <span class="textos">
+        <span class="codigo">{{ caja().codigo }}</span>
+        <span class="detalle">{{ detalle() }}</span>
+    </span>
+    <span class="estado" [class]="'estado estado--' + caja().estado">{{ estadoTexto() }}</span>
+</button>
