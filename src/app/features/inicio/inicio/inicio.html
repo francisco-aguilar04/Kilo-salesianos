@@ -8,7 +8,9 @@
       </button>
       <span class="a-mano">A mano</span>
     </div>
-    <h1 class="titulo">Escanear</h1>
+    @if (cajaAbierta(); as caja) {
+      <app-barra-caja class="barra-flotante" [caja]="caja" [categoria]="categoriaCaja()" />
+    }
   </header>
 
   @if (!cajaAbierta() && !aviso()) {
