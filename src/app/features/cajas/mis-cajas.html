@@ -1,3 +1,12 @@
+@if (cajaPorAsignar(); as caja) {
+<app-hoja-asignar-caja [caja]="caja" [asociaciones]="asociaciones()" [guardando]="asignandoCaja()"
+    (asignar)="confirmarAsignacion($event)" (cancelar)="cancelarAsignacion()" />
+}
+
+@if (aviso(); as a) {
+<app-aviso class="aviso-flotante" [tipo]="a.tipo" [titulo]="a.titulo" [mensaje]="a.mensaje" />
+}
+
 <main class="mis-cajas">
     <header class="cabecera">
         <h1>Mis cajas</h1>

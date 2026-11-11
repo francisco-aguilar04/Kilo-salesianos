@@ -4,6 +4,7 @@ import {
   collectionData,
   doc,
   Firestore,
+  increment,
   limit,
   query,
   runTransaction,
@@ -101,6 +102,32 @@ export class CajasService {
           pesoKg,
           fechaCierre: serverTimestamp(),
         });
+      }),
+    );
+  }
+
+  /** Asigna una caja cerrada a una asociación: la caja pasa a Asignada y la asociación suma
+   *  los kg de la caja y una caja más. Todo en una transacción: se hace entero o no se hace nada.
+   *  Falla si la caja ya no está cerrada (RN-04: una sola asignación por caja). */
+  async asignarCaja(cajaId: string, asociacionId: string): Promise<void> {
+    return runInInjectionContext(this.injector, () =>
+      runTransaction(this.firestore, async (tx) => {
+        const refCaja = doc(this.firestore, 'cajas', cajaId);
+        const refAsociacion = doc(this.firestore, 'asociaciones', asociacionId);
+        const snapCaja = await tx.get(refCaja);
+        const snapAsociacion = await tx.get(refAsociacion);
+
+        if (!snapCaja.exists()) throw new Error('La caja no existe');
+        if (!snapAsociacion.exists()) throw new Error('La asociación no existe');
+
+        const caja = snapCaja.data() as Caja;
+        if (caja.estado !== ESTADOS_CAJA.CERRADA)
+          throw new Error(`La caja ${caja.codigo} no está pendiente de asignar`);
+        if (caja.pesoKg === null) throw new Error(`La caja ${caja.codigo} no tiene peso`);
+
+        tx.update(refCaja, { estado: ESTADOS_CAJA.ASIGNADA, asociacionId });
+        // increment suma en el servidor, así dos asignaciones a la vez a la misma asociación no se pisan
+        tx.update(refAsociacion, { kgRecibidos: increment(caja.pesoKg), numCajas: increment(1) });
       }),
     );
   }

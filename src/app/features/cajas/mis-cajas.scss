@@ -35,3 +35,11 @@
     text-align: center;
     color: #666;
 }
+
+.aviso-flotante {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 1rem);
+    left: 1rem;
+    right: 1rem;
+    z-index: 30;
+}

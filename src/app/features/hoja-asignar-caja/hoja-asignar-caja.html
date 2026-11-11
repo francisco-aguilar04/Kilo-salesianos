@@ -1,0 +1,52 @@
+<div class="capa" (click)="alPulsarCapa()"></div>
+
+@if (paso() === 'elegir') {
+<section class="hoja" role="dialog" aria-modal="true" aria-labelledby="titulo-asignar">
+    <span class="asa" aria-hidden="true"></span>
+
+    <div>
+        <h2 id="titulo-asignar" class="titulo">¿A qué asociación va?</h2>
+        <p class="texto">{{ caja().codigo }} · {{ kg(caja().pesoKg ?? 0) }}</p>
+    </div>
+
+    <ul class="lista" role="radiogroup" aria-label="Asociaciones">
+        @for (a of asociaciones(); track a.id; let primera = $first) {
+        <li>
+            <button type="button" class="opcion" role="radio" [attr.aria-checked]="esSeleccionada(a)"
+                [class.seleccionada]="esSeleccionada(a)" (click)="elegir(a)">
+                <span class="opcion-nombre">{{ a.nombre }}</span>
+                <span class="opcion-datos">{{ kg(a.kgRecibidos) }} · {{ a.numCajas }} cajas</span>
+                @if (primera) {
+                <span class="etiqueta">La que menos tiene</span>
+                }
+            </button>
+        </li>
+        } @empty {
+        <li class="texto">Todavía no hay asociaciones. Avisa al coordinador.</li>
+        }
+    </ul>
+
+    <div class="acciones">
+        <button type="button" class="boton primario" [disabled]="!seleccionada()" (click)="continuar()">
+            Continuar
+        </button>
+        <button type="button" class="boton secundario" (click)="cerrar()">Ahora no</button>
+    </div>
+</section>
+} @else {
+<section class="dialogo" role="alertdialog" aria-modal="true" aria-labelledby="titulo-confirmar">
+    <h2 id="titulo-confirmar" class="titulo">¿Asignar la caja?</h2>
+    <p class="texto">
+        La caja {{ caja().codigo }} ({{ kg(caja().pesoKg ?? 0) }}) irá a
+        <strong>{{ seleccionada()?.nombre }}</strong>. No se podrá cambiar después.
+    </p>
+    <div class="acciones">
+        <button type="button" class="boton primario" [disabled]="guardando()" (click)="confirmar()">
+            {{ guardando() ? 'Asignando…' : 'Asignar caja' }}
+        </button>
+        <button type="button" class="boton secundario" [disabled]="guardando()" (click)="volver()">
+            Volver
+        </button>
+    </div>
+</section>
+}
