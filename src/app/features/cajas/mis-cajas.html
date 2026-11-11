@@ -40,7 +40,7 @@
     <section class="grupo">
         <h2 class="grupo__titulo">Asignadas</h2>
         @for (caja of asignadas(); track caja.id) {
-        <app-tarjeta-caja [caja]="caja" [categoria]="categoriaDe(caja)" />
+        <app-tarjeta-caja [caja]="caja" [categoria]="categoriaDe(caja)" [asociacion]="nombreAsociacionDe(caja)" />
         }
     </section>
     }

@@ -12,6 +12,7 @@ import { Categoria } from '../../../core/interfaces/categoria';
 export class TarjetaCaja {
     readonly caja = input.required<Caja>();
     readonly categoria = input<Categoria | undefined>();
+    readonly asociacion = input<string | null>(null);
     readonly interactiva = input(false); // solo las cajas cerradas sin asignar se pueden tocar
     readonly seleccionada = output<Caja>();
 

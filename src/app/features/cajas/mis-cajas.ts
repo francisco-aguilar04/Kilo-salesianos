@@ -64,6 +64,11 @@ export class MisCajasComponent {
   protected readonly asociaciones = toSignal(this.asociacionesService.obtenerTodas(), {
     initialValue: [] as Asociacion[],
   });
+
+  private readonly asociacionPorId = computed(
+    () => new Map(this.asociaciones().map((a) => [a.id, a])),
+  );
+
   // Caja cerrada que se está asignando. Si no es null, la hoja está abierta.
   protected readonly cajaPorAsignar = signal<Caja | null>(null);
   protected readonly asignandoCaja = signal(false);
@@ -78,6 +83,10 @@ export class MisCajasComponent {
 
   protected categoriaDe(caja: Caja): Categoria | undefined {
     return this.categoriaPorId().get(caja.categoriaId);
+  }
+
+  protected nombreAsociacionDe(caja: Caja): string | null {
+    return caja.asociacionId ? (this.asociacionPorId().get(caja.asociacionId)?.nombre ?? null) : null;
   }
 
   protected abrirAsignacion(caja: Caja): void {
