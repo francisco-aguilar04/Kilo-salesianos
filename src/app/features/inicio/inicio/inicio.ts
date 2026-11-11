@@ -12,6 +12,7 @@ import { Categoria } from '../../../core/interfaces/categoria';
 import { ESTADOS_CAJA } from '../../../core/constants/estados-caja';
 import { HojaNuevaCaja } from '../../hoja-nueva-caja/hoja-nueva-caja';
 import { HojaCerrarCaja } from '../../hoja-cerrar-caja/hoja-cerrar-caja';
+import { BarraCaja } from '../../../shared/components/barra-caja/barra-caja';
 
 interface AvisoPantalla {
   tipo: TipoAviso;
@@ -22,7 +23,7 @@ interface AvisoPantalla {
 @Component({
   selector: 'app-inicio',
   standalone: true,
-  imports: [Escaner, Aviso, HojaNuevaCaja, HojaCerrarCaja],
+  imports: [Escaner, Aviso, HojaNuevaCaja, HojaCerrarCaja, BarraCaja],
   templateUrl: './inicio.html',
   styleUrl: './inicio.scss',
 })
