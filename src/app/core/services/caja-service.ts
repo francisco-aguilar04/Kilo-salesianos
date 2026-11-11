@@ -80,6 +80,15 @@ export class CajasService {
     );
   }
 
+  /** Todas las cajas asignadas (de cualquier voluntario) en tiempo real. */
+  obtenerCajasAsignadas(): Observable<Caja[]> {
+    const consulta = query(
+      collection(this.firestore, 'cajas'),
+      where('estado', '==', ESTADOS_CAJA.ASIGNADA),
+    );
+    return collectionData(consulta, { idField: 'id' }) as Observable<Caja[]>;
+  }
+
   /** Cierra la caja: estado Cerrada, peso y fecha de cierre. Falla si está vacía o ya no está abierta. */
   async cerrarCaja(cajaId: string, pesoKg: number): Promise<void> {
     //Comprobacion

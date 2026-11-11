@@ -2,6 +2,29 @@
     max-width: 24rem;
     margin: 0 auto;
     padding: calc(env(safe-area-inset-top, 0px) + 2rem) 1rem calc(var(--navbar-alto) + env(safe-area-inset-bottom, 0px) + 1rem);
+
+    @media (min-width: 768px) {
+        max-width: 48rem;
+    }
+
+    @media (min-width: 1100px) {
+        max-width: 70rem;
+    }
+}
+
+.grupo {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+
+    @media (min-width: 768px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: 1100px) {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
 
 .cabecera h1 {
@@ -23,6 +46,7 @@
 }
 
 .grupo__titulo {
+    grid-column: 1 / -1;
     margin: 0;
     font-size: 0.75rem;
     letter-spacing: 0.08em;

@@ -61,7 +61,8 @@ export class MisCajasComponent {
   protected readonly asignadas = computed(() => this.filtrar(ESTADOS_CAJA.ASIGNADA));
 
   // ---- HU-09: asignar caja desde aquí ----
-  protected readonly asociaciones = toSignal(this.asociacionesService.obtenerTodas(), {
+  // Con kg y nº de cajas calculados desde las cajas reales
+  protected readonly asociaciones = toSignal(this.asociacionesService.obtenerConTotales(), {
     initialValue: [] as Asociacion[],
   });
 
