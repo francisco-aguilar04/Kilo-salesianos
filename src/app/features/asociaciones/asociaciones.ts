@@ -1,15 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { AsociacionesService } from '../../core/services/asociaciones-service';
+import { Asociacion } from '../../core/interfaces/asociacion';
 
 @Component({
-    selector: 'app-asociaciones',
-    standalone: true,
-    template: `<main class="pantalla"><h1>Asociaciones</h1></main>`,
-    styles: `
-    .pantalla {
-      max-width: 24rem;
-      margin: 0 auto;
-      padding: 2rem 1rem calc(var(--navbar-alto) + env(safe-area-inset-bottom, 0px) + 1rem);
-    }
-  `,
+  selector: 'app-asociaciones',
+  standalone: true,
+  templateUrl: './asociaciones.html',
+  styleUrl: './asociaciones.scss',
 })
-export class AsociacionesComponent { }
+export class AsociacionesComponent {
+  private readonly asociacionesService = inject(AsociacionesService);
+
+  // null = todavía cargando
+  protected readonly asociaciones = toSignal<Asociacion[] | null>(
+    this.asociacionesService.obtenerTodas(),
+    { initialValue: null },
+  );
+}
