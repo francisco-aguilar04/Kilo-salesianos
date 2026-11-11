@@ -2,6 +2,7 @@ export const ESTADOS_CAJA = {
 
     ABIERTA: 'abierta',
     CERRADA: 'cerrada',
+    ASIGNADA: 'asignada',
 
 } as const;
 
