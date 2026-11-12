@@ -9,6 +9,7 @@ import {
   query,
   runTransaction,
   serverTimestamp,
+  updateDoc,
   where,
 } from '@angular/fire/firestore';
 import { firstValueFrom, map, Observable } from 'rxjs';
@@ -181,5 +182,9 @@ export class CajasService {
         tx.update(refCaja, { estado: ESTADOS_CAJA.ASIGNADA, asociacionId: idAsociacion });
       }),
     );
+  }
+  /** HU-05: suma un alimento. increment lo resuelve el servidor, no hace falta leer antes. */
+  sumarUnidad(cajaId: string): Promise<void> {
+    return updateDoc(doc(this.firestore, 'cajas', cajaId), { unidades: increment(1) });
   }
 }
