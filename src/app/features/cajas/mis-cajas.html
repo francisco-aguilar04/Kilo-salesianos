@@ -1,6 +1,7 @@
 @if (cajaPorAsignar(); as caja) {
 <app-hoja-asignar-caja [caja]="caja" [asociaciones]="asociaciones()" [guardando]="asignandoCaja()"
-    (asignar)="confirmarAsignacion($event)" (cancelar)="cancelarAsignacion()" />
+    (asignar)="confirmarAsignacion($event)" (cancelar)="cancelarAsignacion()"
+    (crearNueva)="confirmarNuevaAsociacion($event)" />
 }
 
 @if (aviso(); as a) {

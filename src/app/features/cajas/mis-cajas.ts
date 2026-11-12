@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { Auth } from '../../core/services/auth';
-import { CajasService } from '../../core/services/caja-service';
+import { AsociacionDuplicadaError, CajasService } from '../../core/services/caja-service';
 import { CategoriasService } from '../../core/services/categorias-service';
 import { AsociacionesService } from '../../core/services/asociaciones-service';
 import { ESTADOS_CAJA, EstadoCaja } from '../../core/constants/estados-caja';
@@ -119,6 +119,41 @@ export class MisCajasComponent {
         titulo: 'No se ha podido asignar la caja',
         mensaje: 'Inténtalo de nuevo',
       });
+    } finally {
+      this.asignandoCaja.set(false);
+    }
+  }
+
+  // ---- HU-10: crear asociación nueva y asignarle la caja ----
+  protected async confirmarNuevaAsociacion(nombre: string): Promise<void> {
+    const caja = this.cajaPorAsignar();
+    if (!caja) return;
+
+    this.asignandoCaja.set(true);
+    try {
+      await this.cajasService.asignarCajaANuevaAsociacion(caja.id, nombre);
+      this.cajaPorAsignar.set(null);
+      this.mostrarAviso({
+        tipo: 'exito',
+        titulo: 'Caja asignada',
+        mensaje: `${caja.codigo} → ${nombre}`,
+      });
+    } catch (e) {
+      this.cajaPorAsignar.set(null);
+      if (e instanceof AsociacionDuplicadaError) {
+        this.mostrarAviso({
+          tipo: 'aviso',
+          titulo: 'Ya existe esa asociación',
+          mensaje: 'Elígela en la lista',
+        });
+      } else {
+        console.error(e);
+        this.mostrarAviso({
+          tipo: 'error',
+          titulo: 'No se ha podido crear la asociación',
+          mensaje: 'Inténtalo de nuevo',
+        });
+      }
     } finally {
       this.asignandoCaja.set(false);
     }

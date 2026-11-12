@@ -4,7 +4,7 @@ import { of, switchMap } from 'rxjs';
 import { Escaner } from '../../../shared/components/escaner/escaner';
 import { Aviso, TipoAviso } from '../../../shared/components/aviso/aviso';
 import { CategoriasService } from '../../../core/services/categorias-service';
-import { CajasService } from '../../../core/services/caja-service';
+import { AsociacionDuplicadaError, CajasService } from '../../../core/services/caja-service';
 import { AsociacionesService } from '../../../core/services/asociaciones-service';
 import { Auth } from '../../../core/services/auth';
 import { QrInvalidoError } from '../../../core/errors/qr-invalid-error';
@@ -230,6 +230,41 @@ export class InicioComponent {
         titulo: 'No se ha podido asignar la caja',
         mensaje: 'Inténtalo de nuevo',
       });
+    } finally {
+      this.asignandoCaja.set(false);
+    }
+  }
+
+  // ---- HU-10: crear asociación nueva y asignarle la caja ----
+  protected async confirmarNuevaAsociacion(nombre: string): Promise<void> {
+    const caja = this.cajaCerrada();
+    if (!caja) return;
+
+    this.asignandoCaja.set(true);
+    try {
+      await this.cajas.asignarCajaANuevaAsociacion(caja.id, nombre);
+      this.cajaCerrada.set(null);
+      this.mostrarAviso({
+        tipo: 'exito',
+        titulo: 'Caja asignada',
+        mensaje: `${caja.codigo} → ${nombre}`,
+      });
+    } catch (e) {
+      this.cajaCerrada.set(null);
+      if (e instanceof AsociacionDuplicadaError) {
+        this.mostrarAviso({
+          tipo: 'aviso',
+          titulo: 'Ya existe esa asociación',
+          mensaje: 'Asigna la caja desde Mis cajas',
+        });
+      } else {
+        console.error(e);
+        this.mostrarAviso({
+          tipo: 'error',
+          titulo: 'No se ha podido crear la asociación',
+          mensaje: 'Inténtalo de nuevo',
+        });
+      }
     } finally {
       this.asignandoCaja.set(false);
     }
