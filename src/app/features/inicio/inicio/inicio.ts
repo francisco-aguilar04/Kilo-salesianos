@@ -7,7 +7,6 @@ import { CategoriasService } from '../../../core/services/categorias-service';
 import { AsociacionDuplicadaError, CajasService } from '../../../core/services/caja-service';
 import { AsociacionesService } from '../../../core/services/asociaciones-service';
 import { Auth } from '../../../core/services/auth';
-import { QrInvalidoError } from '../../../core/errors/qr-invalid-error';
 import { Asociacion } from '../../../core/interfaces/asociacion';
 import { Caja } from '../../../core/interfaces/caja';
 import { Categoria } from '../../../core/interfaces/categoria';
@@ -44,6 +43,15 @@ export class InicioComponent {
     { initialValue: null },
   );
   private readonly listaCategorias = toSignal(this.categorias.obtenerTodas(), { initialValue: [] });
+  // Categorías activas indexadas por su código QR: buscar es instantáneo y no gasta lecturas.
+  private readonly categoriasPorCodigo = computed(
+    () =>
+      new Map(
+        this.listaCategorias()
+          .filter((c) => c.activa)
+          .map((c) => [c.codigoQr, c]),
+      ),
+  );
   // Asociaciones de menos a más kg (HU-09), con kg y nº de cajas calculados desde las cajas reales
   protected readonly asociaciones = toSignal(this.asociacionesService.obtenerConTotales(), {
     initialValue: [],
@@ -81,34 +89,54 @@ export class InicioComponent {
 
   protected async alLeerCodigo(codigo: string): Promise<void> {
     // Con cualquier hoja abierta, la cámara no hace nada
-    if (this.categoriaPendiente() || this.hojaCerrarAbierta() || this.cajaCerrada()) return;
-    try {
-      const categoria = await this.categorias.validarCodigo(codigo);
-      if (!this.cajaAbierta()) {
-        this.categoriaPendiente.set(categoria);
-        return;
-      }
-      // TEMPORAL: en la HU-05 esto se sustituye por sumar el alimento.
+    if (this.categoriaPendiente() || this.hojaCerrarAbierta()) return;
+
+    if (this.listaCategorias().length === 0) {
       this.mostrarAviso({
         tipo: 'aviso',
-        titulo: `Tienes abierta la caja ${this.cajaAbierta()?.codigo}`,
-        mensaje: 'Sumar alimentos llega en la HU-05',
+        titulo: 'Cargando categorías',
+        mensaje: 'Vuelve a escanear en un segundo',
       });
+      return;
+    }
+
+    // CP4: validación en local, sin consultar Firestore en cada lectura
+    const categoria = this.categoriasPorCodigo().get(codigo.trim());
+    if (!categoria) {
+      this.mostrarAviso({ tipo: 'aviso', titulo: 'QR no válido', mensaje: 'Avisa al coordinador' });
+      return;
+    }
+
+    const caja = this.cajaAbierta();
+    if (!caja) {
+      this.categoriaPendiente.set(categoria); // HU-03: abre la hoja "Nueva caja"
+      return;
+    }
+
+    if (categoria.id !== caja.categoriaId) {
+      // TEMPORAL: la HU-06 lo convierte en el aviso rojo EX-01 con vibración
+      this.mostrarAviso({
+        tipo: 'error',
+        titulo: 'No va en esta caja',
+        mensaje: `Este alimento es de ${categoria.nombre}`,
+      });
+      return;
+    }
+
+    try {
+      await this.cajas.sumarUnidad(caja.id);
+      // CP2: aviso verde corto para que no tape la siguiente lectura
+      this.mostrarAviso(
+        { tipo: 'exito', titulo: 'Alimento sumado', mensaje: `Caja ${caja.codigo}` },
+        1500,
+      );
     } catch (e) {
-      if (e instanceof QrInvalidoError) {
-        this.mostrarAviso({
-          tipo: 'aviso',
-          titulo: 'QR no válido',
-          mensaje: 'Avisa al coordinador',
-        });
-      } else {
-        console.error(e);
-        this.mostrarAviso({
-          tipo: 'error',
-          titulo: 'Ha ocurrido un error',
-          mensaje: 'Inténtalo de nuevo',
-        });
-      }
+      console.error(e);
+      this.mostrarAviso({
+        tipo: 'error',
+        titulo: 'No se ha podido sumar',
+        mensaje: 'Inténtalo de nuevo',
+      });
     }
   }
 

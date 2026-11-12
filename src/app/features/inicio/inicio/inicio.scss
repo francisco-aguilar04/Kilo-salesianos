@@ -55,12 +55,10 @@
 }
 
 .aviso-flotante {
+  top: 50%;
   position: absolute;
   left: 24px;
   right: 24px;
-  bottom: calc(
-    var(--navbar-alto) + env(safe-area-inset-bottom, 0px) + 1.5rem
-  ); // por encima de la navbar
   z-index: 5;
 }
 
@@ -68,8 +66,8 @@
   position: absolute;
   left: 24px;
   right: 24px;
-  bottom: calc(7rem + env(safe-area-inset-bottom)); // mismo hueco que .aviso-flotante
-  z-index: 5;
+  top: calc(env(safe-area-inset-top, 0px) + 108px);
+  bottom: auto;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -113,13 +111,10 @@
     opacity: 0.45;
   }
 }
-.aviso-flotante.sobre-boton {
-  bottom: calc(var(--navbar-alto) + env(safe-area-inset-bottom, 0px) + 1.5rem + 56px + 16px);
-}
 
 .barra-flotante {
   position: absolute;
-  top: calc(env(safe-area-inset-top, 0px) + 100px); // en el Figma está a 136 px, debajo de "A mano"
+  top: calc(env(safe-area-inset-top, 0px) + 108px); // en el Figma está a 136 px, debajo de "A mano"
   left: 24px;
   right: 24px;
   z-index: 5; // por encima del vídeo, igual que el botón de cerrar
