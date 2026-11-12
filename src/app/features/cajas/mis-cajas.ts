@@ -1,19 +1,29 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { Auth } from '../../core/services/auth';
 import { CajasService } from '../../core/services/caja-service';
 import { CategoriasService } from '../../core/services/categorias-service';
+import { AsociacionesService } from '../../core/services/asociaciones-service';
 import { ESTADOS_CAJA, EstadoCaja } from '../../core/constants/estados-caja';
+import { Asociacion } from '../../core/interfaces/asociacion';
 import { Caja } from '../../core/interfaces/caja';
 import { Categoria } from '../../core/interfaces/categoria';
 import { TarjetaCaja } from '../../shared/components/tarjeta-caja/tarjeta-caja';
+import { Aviso, TipoAviso } from '../../shared/components/aviso/aviso';
+import { HojaAsignarCaja } from '../hoja-asignar-caja/hoja-asignar-caja';
+
+interface AvisoPantalla {
+  tipo: TipoAviso;
+  titulo: string;
+  mensaje: string;
+}
 
 @Component({
   selector: 'app-mis-cajas',
   standalone: true,
-  imports: [TarjetaCaja],
+  imports: [TarjetaCaja, Aviso, HojaAsignarCaja],
   templateUrl: './mis-cajas.html',
   styleUrl: './mis-cajas.scss',
 })
@@ -21,6 +31,8 @@ export class MisCajasComponent {
   private readonly authService = inject(Auth);
   private readonly cajasService = inject(CajasService);
   private readonly categoriasService = inject(CategoriasService);
+  private readonly asociacionesService = inject(AsociacionesService);
+  private readonly destroyRef = inject(DestroyRef);
 
   // "miércoles 4 de noviembre"
   protected readonly fechaHoy: string = new Date()
@@ -48,12 +60,74 @@ export class MisCajasComponent {
   protected readonly cerradas = computed(() => this.filtrar(ESTADOS_CAJA.CERRADA));
   protected readonly asignadas = computed(() => this.filtrar(ESTADOS_CAJA.ASIGNADA));
 
+  // ---- HU-09: asignar caja desde aquí ----
+  // Con kg y nº de cajas calculados desde las cajas reales
+  protected readonly asociaciones = toSignal(this.asociacionesService.obtenerConTotales(), {
+    initialValue: [] as Asociacion[],
+  });
+
+  private readonly asociacionPorId = computed(
+    () => new Map(this.asociaciones().map((a) => [a.id, a])),
+  );
+
+  // Caja cerrada que se está asignando. Si no es null, la hoja está abierta.
+  protected readonly cajaPorAsignar = signal<Caja | null>(null);
+  protected readonly asignandoCaja = signal(false);
+
+  // ---- Avisos ----
+  protected readonly aviso = signal<AvisoPantalla | null>(null);
+  private temporizador?: ReturnType<typeof setTimeout>;
+
+  constructor() {
+    this.destroyRef.onDestroy(() => clearTimeout(this.temporizador));
+  }
+
   protected categoriaDe(caja: Caja): Categoria | undefined {
     return this.categoriaPorId().get(caja.categoriaId);
   }
 
+  protected nombreAsociacionDe(caja: Caja): string | null {
+    return caja.asociacionId ? (this.asociacionPorId().get(caja.asociacionId)?.nombre ?? null) : null;
+  }
+
   protected abrirAsignacion(caja: Caja): void {
-    // TODO (HU-09): abrir la hoja "¿A qué asociación va?" para esta caja cerrada.
+    this.cajaPorAsignar.set(caja);
+  }
+
+  protected cancelarAsignacion(): void {
+    if (!this.asignandoCaja()) this.cajaPorAsignar.set(null);
+  }
+
+  protected async confirmarAsignacion(asociacion: Asociacion): Promise<void> {
+    const caja = this.cajaPorAsignar();
+    if (!caja) return;
+
+    this.asignandoCaja.set(true);
+    try {
+      await this.cajasService.asignarCaja(caja.id, asociacion.id);
+      this.cajaPorAsignar.set(null);
+      this.mostrarAviso({
+        tipo: 'exito',
+        titulo: 'Caja asignada',
+        mensaje: `${caja.codigo} → ${asociacion.nombre}`,
+      });
+    } catch (e) {
+      console.error(e);
+      this.cajaPorAsignar.set(null);
+      this.mostrarAviso({
+        tipo: 'error',
+        titulo: 'No se ha podido asignar la caja',
+        mensaje: 'Inténtalo de nuevo',
+      });
+    } finally {
+      this.asignandoCaja.set(false);
+    }
+  }
+
+  private mostrarAviso(aviso: AvisoPantalla, ms = 3000): void {
+    clearTimeout(this.temporizador);
+    this.aviso.set(aviso);
+    this.temporizador = setTimeout(() => this.aviso.set(null), ms);
   }
 
   private filtrar(estado: EstadoCaja): Caja[] {

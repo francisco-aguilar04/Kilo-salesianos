@@ -5,13 +5,16 @@ import { Escaner } from '../../../shared/components/escaner/escaner';
 import { Aviso, TipoAviso } from '../../../shared/components/aviso/aviso';
 import { CategoriasService } from '../../../core/services/categorias-service';
 import { CajasService } from '../../../core/services/caja-service';
+import { AsociacionesService } from '../../../core/services/asociaciones-service';
 import { Auth } from '../../../core/services/auth';
 import { QrInvalidoError } from '../../../core/errors/qr-invalid-error';
+import { Asociacion } from '../../../core/interfaces/asociacion';
 import { Caja } from '../../../core/interfaces/caja';
 import { Categoria } from '../../../core/interfaces/categoria';
 import { ESTADOS_CAJA } from '../../../core/constants/estados-caja';
 import { HojaNuevaCaja } from '../../hoja-nueva-caja/hoja-nueva-caja';
 import { HojaCerrarCaja } from '../../hoja-cerrar-caja/hoja-cerrar-caja';
+import { HojaAsignarCaja } from '../../hoja-asignar-caja/hoja-asignar-caja';
 import { BarraCaja } from '../../../shared/components/barra-caja/barra-caja';
 
 interface AvisoPantalla {
@@ -23,7 +26,7 @@ interface AvisoPantalla {
 @Component({
   selector: 'app-inicio',
   standalone: true,
-  imports: [Escaner, Aviso, HojaNuevaCaja, HojaCerrarCaja, BarraCaja],
+  imports: [Escaner, Aviso, HojaNuevaCaja, HojaCerrarCaja, HojaAsignarCaja, BarraCaja],
   templateUrl: './inicio.html',
   styleUrl: './inicio.scss',
 })
@@ -31,19 +34,21 @@ export class InicioComponent {
   // ---- Servicios (van primero: las señales de abajo los usan al crearse) ----
   private readonly categorias = inject(CategoriasService);
   private readonly cajas = inject(CajasService);
+  private readonly asociacionesService = inject(AsociacionesService);
   private readonly auth = inject(Auth);
   private readonly destroyRef = inject(DestroyRef);
 
   // ---- Datos de Firestore en tiempo real ----
-  // Caja abierta del usuario. Cambia sola al crear, cerrar o recargar.
   protected readonly cajaAbierta = toSignal(
     this.auth.user$.pipe(switchMap((u) => (u ? this.cajas.obtenerCajaAbierta(u.uid) : of(null)))),
     { initialValue: null },
   );
-  // Si en la HU-05 ya cargaste las categorías en local, usa esa señal y no añadas esta.
   private readonly listaCategorias = toSignal(this.categorias.obtenerTodas(), { initialValue: [] });
+  // Asociaciones de menos a más kg (HU-09), con kg y nº de cajas calculados desde las cajas reales
+  protected readonly asociaciones = toSignal(this.asociacionesService.obtenerConTotales(), {
+    initialValue: [],
+  });
 
-  // Categoría de la caja abierta (nombre y color para la hoja de cierre).
   protected readonly categoriaCaja = computed(() => {
     const caja = this.cajaAbierta();
     return caja ? (this.listaCategorias().find((c) => c.id === caja.categoriaId) ?? null) : null;
@@ -54,15 +59,17 @@ export class InicioComponent {
   private temporizador?: ReturnType<typeof setTimeout>;
 
   // ---- Hoja "Nueva caja" (HU-03) ----
-  // Categoría leída que espera confirmación. Si no es null, la hoja está abierta.
   protected readonly categoriaPendiente = signal<Categoria | null>(null);
   protected readonly creandoCaja = signal(false);
 
   // ---- Hoja "Cerrar caja" (HU-08) ----
   protected readonly hojaCerrarAbierta = signal(false);
   protected readonly cerrandoCaja = signal(false);
-  // Última caja cerrada. HU-09 (compañero) abre la asignación a partir de esta señal.
+
+  // ---- Hoja "¿A qué asociación va?" (HU-09) ----
+  // Caja recién cerrada pendiente de asignar. Si no es null, la hoja está abierta.
   protected readonly cajaCerrada = signal<Caja | null>(null);
+  protected readonly asignandoCaja = signal(false);
 
   constructor() {
     this.destroyRef.onDestroy(() => clearTimeout(this.temporizador));
@@ -70,19 +77,18 @@ export class InicioComponent {
 
   protected atras(): void {
     // TODO: según el Figma (1.1), esta flecha lleva a "Introducir a mano".
-    // Esa pantalla aún no existe; cuando esté, navegar a su ruta aquí.
   }
 
   protected async alLeerCodigo(codigo: string): Promise<void> {
     // Con cualquier hoja abierta, la cámara no hace nada
-    if (this.categoriaPendiente() || this.hojaCerrarAbierta()) return;
+    if (this.categoriaPendiente() || this.hojaCerrarAbierta() || this.cajaCerrada()) return;
     try {
       const categoria = await this.categorias.validarCodigo(codigo);
       if (!this.cajaAbierta()) {
-        this.categoriaPendiente.set(categoria); // abre la hoja
+        this.categoriaPendiente.set(categoria);
         return;
       }
-      // Con caja abierta. TEMPORAL: en la HU-05 esto se sustituye por sumar el alimento.
+      // TEMPORAL: en la HU-05 esto se sustituye por sumar el alimento.
       this.mostrarAviso({
         tipo: 'aviso',
         titulo: `Tienes abierta la caja ${this.cajaAbierta()?.codigo}`,
@@ -114,7 +120,7 @@ export class InicioComponent {
 
   // ---- HU-03: abrir caja ----
   protected cancelarNuevaCaja(): void {
-    this.categoriaPendiente.set(null); // cierra la hoja y la cámara vuelve a leer
+    this.categoriaPendiente.set(null);
   }
 
   protected async confirmarNuevaCaja(): Promise<void> {
@@ -130,7 +136,7 @@ export class InicioComponent {
       return;
     }
 
-    this.creandoCaja.set(true); // desactiva los botones de la hoja
+    this.creandoCaja.set(true);
     try {
       const codigo = await this.cajas.abrirCaja(categoria, uid);
       this.categoriaPendiente.set(null);
@@ -141,7 +147,7 @@ export class InicioComponent {
       });
     } catch (e) {
       console.error(e);
-      this.categoriaPendiente.set(null); // cierra la hoja para que se vea el aviso
+      this.categoriaPendiente.set(null);
       this.mostrarAviso({
         tipo: 'error',
         titulo: 'No se ha podido crear la caja',
@@ -183,13 +189,8 @@ export class InicioComponent {
     try {
       await this.cajas.cerrarCaja(caja.id, pesoKg);
       this.hojaCerrarAbierta.set(false);
+      // Abre la hoja "¿A qué asociación va?" (HU-09)
       this.cajaCerrada.set({ ...caja, estado: ESTADOS_CAJA.CERRADA, pesoKg });
-      // TODO HU-09: aquí se abre la hoja "¿A qué asociación va?". Mientras tanto, aviso verde:
-      this.mostrarAviso({
-        tipo: 'exito',
-        titulo: `Caja ${caja.codigo} cerrada`,
-        mensaje: `${pesoKg.toLocaleString('es-ES')} kg`,
-      });
     } catch (e) {
       console.error(e);
       this.hojaCerrarAbierta.set(false);
@@ -200,6 +201,37 @@ export class InicioComponent {
       });
     } finally {
       this.cerrandoCaja.set(false);
+    }
+  }
+
+  // ---- HU-09: asignar caja ----
+  protected cancelarAsignacion(): void {
+    if (!this.asignandoCaja()) this.cajaCerrada.set(null);
+  }
+
+  protected async confirmarAsignacion(asociacion: Asociacion): Promise<void> {
+    const caja = this.cajaCerrada();
+    if (!caja) return;
+
+    this.asignandoCaja.set(true);
+    try {
+      await this.cajas.asignarCaja(caja.id, asociacion.id);
+      this.cajaCerrada.set(null); // vuelta a la cámara sin caja
+      this.mostrarAviso({
+        tipo: 'exito',
+        titulo: 'Caja asignada',
+        mensaje: `${caja.codigo} → ${asociacion.nombre}`,
+      });
+    } catch (e) {
+      console.error(e);
+      this.cajaCerrada.set(null);
+      this.mostrarAviso({
+        tipo: 'error',
+        titulo: 'No se ha podido asignar la caja',
+        mensaje: 'Inténtalo de nuevo',
+      });
+    } finally {
+      this.asignandoCaja.set(false);
     }
   }
 }
