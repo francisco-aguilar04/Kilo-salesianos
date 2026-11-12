@@ -44,8 +44,8 @@ export class InicioComponent {
     { initialValue: null },
   );
   private readonly listaCategorias = toSignal(this.categorias.obtenerTodas(), { initialValue: [] });
-  // Asociaciones de menos a más kg (HU-09)
-  protected readonly asociaciones = toSignal(this.asociacionesService.obtenerTodas(), {
+  // Asociaciones de menos a más kg (HU-09), con kg y nº de cajas calculados desde las cajas reales
+  protected readonly asociaciones = toSignal(this.asociacionesService.obtenerConTotales(), {
     initialValue: [],
   });
 
