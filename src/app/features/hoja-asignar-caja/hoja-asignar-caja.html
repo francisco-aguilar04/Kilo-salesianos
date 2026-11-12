@@ -22,9 +22,11 @@
             </button>
         </li>
         } @empty {
-        <li class="texto">Todavía no hay asociaciones. Avisa al coordinador.</li>
+        <li class="texto">Todavía no hay asociaciones.</li>
         }
     </ul>
+
+    <button type="button" class="boton nueva" (click)="abrirNueva()">+ Nueva asociación</button>
 
     <div class="acciones">
         <button type="button" class="boton primario" [disabled]="!seleccionada()" (click)="continuar()">
@@ -32,6 +34,37 @@
         </button>
         <button type="button" class="boton secundario" (click)="cerrar()">Ahora no</button>
     </div>
+</section>
+} @else if (paso() === 'nueva') {
+<section class="hoja" role="dialog" aria-modal="true" aria-labelledby="titulo-nueva">
+    <span class="asa" aria-hidden="true"></span>
+
+    <div class="cabecera-hoja">
+        <button type="button" class="atras" aria-label="Volver a la lista" [disabled]="guardando()" (click)="volver()">
+            <i class="bi bi-arrow-left"></i>
+        </button>
+        <div>
+            <h2 id="titulo-nueva" class="titulo">Nueva asociación</h2>
+            <p class="texto">{{ caja().codigo }} · {{ kg(caja().pesoKg ?? 0) }}</p>
+        </div>
+    </div>
+
+    <form class="formulario" (submit)="$event.preventDefault(); crear()">
+        <label class="campo">
+            <span class="campo-etiqueta">Nombre</span>
+            <input #campo type="text" autocomplete="off" placeholder="Nombre de la asociación" [value]="nombreNuevo()"
+                [class.invalido]="errorNombre()" [disabled]="guardando()" (input)="escribir(campo.value)" />
+        </label>
+        @if (errorNombre(); as error) {
+        <p class="error">{{ error }}</p>
+        }
+
+        <div class="acciones">
+            <button type="submit" class="boton primario" [disabled]="guardando()">
+                {{ guardando() ? 'Creando…' : 'Crear y asignar caja' }}
+            </button>
+        </div>
+    </form>
 </section>
 } @else {
 <section class="dialogo" role="alertdialog" aria-modal="true" aria-labelledby="titulo-confirmar">

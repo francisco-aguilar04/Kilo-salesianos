@@ -17,6 +17,14 @@ import { ESTADOS_CAJA } from '../constants/estados-caja';
 import { Categoria } from '../interfaces/categoria';
 import { PESO_MAXIMO_KG } from '../constants/peso-cajas';
 
+/** RN-05: ya existe una asociación con ese nombre. */
+export class AsociacionDuplicadaError extends Error {
+  constructor(nombre: string) {
+    super(`Ya existe la asociación "${nombre}"`);
+    this.name = 'AsociacionDuplicadaError';
+  }
+}
+
 @Service()
 export class CajasService {
   private readonly firestore = inject(Firestore);
@@ -137,6 +145,40 @@ export class CajasService {
         tx.update(refCaja, { estado: ESTADOS_CAJA.ASIGNADA, asociacionId });
         // increment suma en el servidor, así dos asignaciones a la vez a la misma asociación no se pisan
         tx.update(refAsociacion, { kgRecibidos: increment(caja.pesoKg), numCajas: increment(1) });
+      }),
+    );
+  }
+
+  /** HU-10: crea una asociación nueva y le asigna la caja cerrada, todo en una transacción.
+   *  RN-05: el nombre es obligatorio y no se puede repetir (sin mayúsculas ni espacios de más).
+   *  El id de la asociación es su nombre normalizado, así dos altas simultáneas no se duplican. */
+  async asignarCajaANuevaAsociacion(cajaId: string, nombre: string): Promise<void> {
+    const limpio = nombre.trim().replace(/\s+/g, ' ');
+    if (!limpio) throw new Error('El nombre es obligatorio');
+    const idAsociacion = limpio.toLowerCase().replace(/\//g, '-');
+
+    return runInInjectionContext(this.injector, () =>
+      runTransaction(this.firestore, async (tx) => {
+        const refCaja = doc(this.firestore, 'cajas', cajaId);
+        const refAsociacion = doc(this.firestore, 'asociaciones', idAsociacion);
+        const snapCaja = await tx.get(refCaja);
+        const snapAsociacion = await tx.get(refAsociacion);
+
+        if (!snapCaja.exists()) throw new Error('La caja no existe');
+        if (snapAsociacion.exists()) throw new AsociacionDuplicadaError(limpio);
+
+        const caja = snapCaja.data() as Caja;
+        if (caja.estado !== ESTADOS_CAJA.CERRADA)
+          throw new Error(`La caja ${caja.codigo} no está pendiente de asignar`);
+        if (caja.pesoKg === null) throw new Error(`La caja ${caja.codigo} no tiene peso`);
+
+        tx.set(refAsociacion, {
+          nombre: limpio,
+          contacto: '',
+          kgRecibidos: caja.pesoKg,
+          numCajas: 1,
+        });
+        tx.update(refCaja, { estado: ESTADOS_CAJA.ASIGNADA, asociacionId: idAsociacion });
       }),
     );
   }
