@@ -1,10 +1,18 @@
 <main class="pantalla">
     <header class="cabecera">
-        <h1>Asociaciones</h1>
+        <h1>Entidades</h1>
         @if (asociaciones(); as lista) {
         <span class="contador">{{ lista.length }}</span>
         }
     </header>
+
+    @if (auth.isAdmin()) {
+    <div class="barra">
+        <button type="button" class="boton primario" (click)="abrirModal()">
+            <i class="bi bi-plus-lg"></i> Registrar entidad
+        </button>
+    </div>
+    }
 
     @if (asociaciones(); as lista) {
     <ul class="lista">
@@ -14,9 +22,11 @@
 
             <div class="info">
                 <h2>{{ a.nombre }}</h2>
+                @if (a.contacto) {
                 <p class="contacto">
                     <i class="bi bi-person"></i> {{ a.contacto }}
                 </p>
+                }
             </div>
 
             <div class="cifras">
@@ -36,3 +46,38 @@
     <p class="vacio">Cargando…</p>
     }
 </main>
+
+@if (auth.isAdmin() && modalAbierto()) {
+<div class="capa" (click)="cerrarModal()">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="titulo-registrar"
+        (click)="$event.stopPropagation()">
+        <h2 id="titulo-registrar" class="modal-titulo">Registrar entidad</h2>
+
+        <form class="formulario" (submit)="$event.preventDefault(); registrar()" novalidate>
+            <label class="campo">
+                <span class="campo-etiqueta">Nombre</span>
+                <input #nombre type="text" autocomplete="off" placeholder="Nombre de la entidad" [value]="nombreNuevo()"
+                    [class.invalido]="mensajeError()" [disabled]="guardando()" (input)="escribirNombre(nombre.value)" />
+            </label>
+            @if (mensajeError(); as error) {
+            <p class="error" role="alert">{{ error }}</p>
+            }
+
+            <label class="campo">
+                <span class="campo-etiqueta">Contacto (opcional)</span>
+                <input #contacto type="text" autocomplete="off" placeholder="Persona o teléfono de contacto"
+                    [value]="contactoNuevo()" [disabled]="guardando()" (input)="escribirContacto(contacto.value)" />
+            </label>
+
+            <div class="acciones">
+                <button type="submit" class="boton primario" [disabled]="guardando()">
+                    {{ guardando() ? 'Registrando…' : 'Registrar entidad' }}
+                </button>
+                <button type="button" class="boton secundario" [disabled]="guardando()" (click)="cerrarModal()">
+                    Cancelar
+                </button>
+            </div>
+        </form>
+    </section>
+</div>
+}

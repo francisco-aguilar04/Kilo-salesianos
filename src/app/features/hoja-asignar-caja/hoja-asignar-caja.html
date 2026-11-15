@@ -5,7 +5,7 @@
     <span class="asa" aria-hidden="true"></span>
 
     <div>
-        <h2 id="titulo-asignar" class="titulo">¿A qué asociación va?</h2>
+        <h2 id="titulo-asignar" class="titulo">¿A qué entidad va?</h2>
         <p class="texto">{{ caja().codigo }} · {{ kg(caja().pesoKg ?? 0) }}</p>
     </div>
 
@@ -22,11 +22,18 @@
             </button>
         </li>
         } @empty {
-        <li class="texto">Todavía no hay asociaciones.</li>
+        <li class="texto">
+            Todavía no hay entidades.
+            @if (!auth.isAdmin()) {
+            Avisa a un coordinador para que la registre.
+            }
+        </li>
         }
     </ul>
 
-    <button type="button" class="boton nueva" (click)="abrirNueva()">+ Nueva asociación</button>
+    @if (auth.isAdmin()) {
+    <button type="button" class="boton nueva" (click)="abrirNueva()">+ Nueva entidad</button>
+    }
 
     <div class="acciones">
         <button type="button" class="boton primario" [disabled]="!seleccionada()" (click)="continuar()">
@@ -44,7 +51,7 @@
             <i class="bi bi-arrow-left"></i>
         </button>
         <div>
-            <h2 id="titulo-nueva" class="titulo">Nueva asociación</h2>
+            <h2 id="titulo-nueva" class="titulo">Nueva entidad</h2>
             <p class="texto">{{ caja().codigo }} · {{ kg(caja().pesoKg ?? 0) }}</p>
         </div>
     </div>
@@ -52,7 +59,7 @@
     <form class="formulario" (submit)="$event.preventDefault(); crear()">
         <label class="campo">
             <span class="campo-etiqueta">Nombre</span>
-            <input #campo type="text" autocomplete="off" placeholder="Nombre de la asociación" [value]="nombreNuevo()"
+            <input #campo type="text" autocomplete="off" placeholder="Nombre de la entidad" [value]="nombreNuevo()"
                 [class.invalido]="errorNombre()" [disabled]="guardando()" (input)="escribir(campo.value)" />
         </label>
         @if (errorNombre(); as error) {

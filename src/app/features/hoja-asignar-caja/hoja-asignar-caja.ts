@@ -1,6 +1,7 @@
-import { Component, computed, input, output, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { Asociacion } from '../../core/interfaces/asociacion';
 import { Caja } from '../../core/interfaces/caja';
+import { Auth } from '../../core/services/auth';
 
 @Component({
     selector: 'app-hoja-asignar-caja',
@@ -9,6 +10,8 @@ import { Caja } from '../../core/interfaces/caja';
     styleUrl: './hoja-asignar-caja.scss',
 })
 export class HojaAsignarCaja {
+    protected readonly auth = inject(Auth);
+
     readonly caja = input.required<Caja>();
     readonly asociaciones = input.required<Asociacion[]>();
     readonly guardando = input(false);
@@ -67,8 +70,9 @@ export class HojaAsignarCaja {
         return `${n.toLocaleString('es-ES')} kg`;
     }
 
-    // ---- HU-10 ----
+    // ---- HU-10 (solo admin) ----
     protected abrirNueva(): void {
+        if (!this.auth.isAdmin()) return;
         this.nombreNuevo.set('');
         this.intentado.set(false);
         this.paso.set('nueva');
@@ -77,7 +81,7 @@ export class HojaAsignarCaja {
         this.nombreNuevo.set(valor);
     }
     protected crear(): void {
-        if (this.guardando()) return;
+        if (!this.auth.isAdmin() || this.guardando()) return;
         this.intentado.set(true);
         const normalizado = HojaAsignarCaja.normalizar(this.nombreNuevo());
         if (!normalizado || this.errorNombre()) return;

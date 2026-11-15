@@ -20,7 +20,7 @@ const ITEMS_COORDINADOR: NavItem[] = [
   { ruta: '/coordinador', etiqueta: 'Resumen', icono: 'bar-chart' },
   { ruta: '/cajas', etiqueta: 'Cajas', icono: 'box-seam' },
   { ruta: '/escanear', etiqueta: 'Escanear', icono: 'camera', destacado: true },
-  { ruta: '/asociaciones', etiqueta: 'Asociaciones', icono: 'people' },
+  { ruta: '/asociaciones', etiqueta: 'Entidades', icono: 'people' },
   { ruta: '/perfil', etiqueta: 'Perfil', icono: 'person' },
 ];
 
