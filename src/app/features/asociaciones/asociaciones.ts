@@ -1,5 +1,6 @@
 import { Component, computed, HostListener, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import { AsociacionesService } from '../../core/services/asociaciones-service';
 import { AsociacionDuplicadaError, CajasService } from '../../core/services/caja-service';
 import { Auth } from '../../core/services/auth';
@@ -9,6 +10,7 @@ import { Caja } from '../../core/interfaces/caja';
 @Component({
   selector: 'app-asociaciones',
   standalone: true,
+  imports: [RouterLink],
   templateUrl: './asociaciones.html',
   styleUrl: './asociaciones.scss',
 })

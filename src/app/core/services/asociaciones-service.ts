@@ -3,6 +3,7 @@ import {
     collection,
     collectionData,
     doc,
+    docData,
     Firestore,
     runTransaction,
 } from '@angular/fire/firestore';
@@ -29,6 +30,18 @@ export class AsociacionesService {
                     (a, b) => a.kgRecibidos - b.kgRecibidos || a.nombre.localeCompare(b.nombre, 'es'),
                 ),
             ),
+        );
+    }
+
+    /** B3: una asociación en tiempo real por su id, o null si no existe.
+     *  Se envuelve en el contexto de inyección porque se llama desde un switchMap. */
+    obtenerPorId(id: string): Observable<Asociacion | null> {
+        return runInInjectionContext(this.injector, () =>
+            (
+                docData(doc(this.firestore, 'asociaciones', id), {
+                    idField: 'id',
+                }) as Observable<Asociacion | undefined>
+            ).pipe(map((a) => a ?? null)),
         );
     }
 

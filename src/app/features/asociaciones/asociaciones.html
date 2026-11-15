@@ -1,6 +1,6 @@
 <main class="pantalla">
     <header class="cabecera">
-        <h1>Entidades</h1>
+        <h1>Asociaciones</h1>
         @if (asociaciones(); as lista) {
         <span class="contador">{{ lista.length }}</span>
         }
@@ -17,26 +17,28 @@
     @if (asociaciones(); as lista) {
     <ul class="lista">
         @for (a of lista; track a.id) {
-        <li class="tarjeta">
-            <div class="avatar">{{ a.nombre.charAt(0) }}</div>
+        <li>
+            <a class="tarjeta" [routerLink]="['/asociaciones', a.id]">
+                <div class="avatar">{{ a.nombre.charAt(0) }}</div>
 
-            <div class="info">
-                <h2>{{ a.nombre }}</h2>
-                @if (a.contacto) {
-                <p class="contacto">
-                    <i class="bi bi-person"></i> {{ a.contacto }}
-                </p>
-                }
-            </div>
+                <div class="info">
+                    <h2>{{ a.nombre }}</h2>
+                    @if (a.contacto) {
+                    <p class="contacto">
+                        <i class="bi bi-person"></i> {{ a.contacto }}
+                    </p>
+                    }
+                </div>
 
-            <div class="cifras">
-                <span class="cifra">
-                    <strong>{{ a.kgRecibidos }}</strong> kg
-                </span>
-                <span class="cifra">
-                    <strong>{{ a.numCajas }}</strong> cajas
-                </span>
-            </div>
+                <div class="cifras">
+                    <span class="cifra">
+                        <strong>{{ a.kgRecibidos }}</strong> kg
+                    </span>
+                    <span class="cifra">
+                        <strong>{{ a.numCajas }}</strong> cajas
+                    </span>
+                </div>
+            </a>
         </li>
         } @empty {
         <p class="vacio">No hay asociaciones todavía.</p>

@@ -4,6 +4,7 @@ import { InicioComponent } from './features/inicio/inicio/inicio';
 import { PanelComponent } from './features/panel/panel';
 import { MisCajasComponent } from './features/cajas/mis-cajas';
 import { AsociacionesComponent } from './features/asociaciones/asociaciones';
+import { AsociacionDetalleComponent } from './features/asociaciones/asociacion-detalle';
 import { PerfilComponent } from './features/perfil/perfil';
 import { authGuard, guestGuard, roleGuard } from './core/guards/auth-guard';
 import { ROLES } from './core/constants/roles';
@@ -29,6 +30,11 @@ export const routes: Routes = [
   {
     path: 'asociaciones',
     component: AsociacionesComponent,
+    canActivate: [authGuard, roleGuard(ROLES.COORDINADOR)],
+  },
+  {
+    path: 'asociaciones/:id', // B3: detalle de entidad
+    component: AsociacionDetalleComponent,
     canActivate: [authGuard, roleGuard(ROLES.COORDINADOR)],
   },
   { path: '**', redirectTo: '' },

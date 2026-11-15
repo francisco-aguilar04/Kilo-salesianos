@@ -239,3 +239,13 @@
     font-size: 1.1rem;
     color: #6b7280;
 }
+
+a.tarjeta {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:active {
+        background: #f9fafb;
+    }
+}

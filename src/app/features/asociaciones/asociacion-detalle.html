@@ -1,0 +1,49 @@
+<main class="pantalla">
+    <a class="volver" routerLink="/asociaciones">
+        <i class="bi bi-arrow-left"></i> Asociaciones
+    </a>
+
+    @if (asociacion() === undefined) {
+    <p class="vacio">Cargando…</p>
+    } @else if (asociacion(); as a) {
+    <header class="ficha">
+        <div class="avatar">{{ a.nombre.charAt(0) }}</div>
+        <div class="info">
+            <h1>{{ a.nombre }}</h1>
+            @if (a.contacto) {
+            <p class="contacto"><i class="bi bi-person"></i> {{ a.contacto }}</p>
+            }
+        </div>
+    </header>
+
+    <div class="resumen">
+        <span class="cifra"><strong>{{ totalKg() }}</strong> kg</span>
+        <span class="cifra"><strong>{{ totalCajas() }}</strong> cajas</span>
+    </div>
+
+    <h2 class="subtitulo">Cajas asignadas</h2>
+
+    @if (cajas(); as lista) {
+    <ul class="lista">
+        @for (c of lista; track c.id) {
+        <li class="caja">
+            <div>
+                <p class="caja-codigo">{{ c.codigo }}</p>
+                <p class="caja-categoria">{{ categoriaDe(c)?.nombre | titlecase }}</p>
+                <p class="caja-unidades">
+                    {{ c.unidades }} {{ c.unidades === 1 ? 'unidad' : 'unidades' }}
+                </p>
+            </div>
+            <span class="cifra"><strong>{{ c.pesoKg }}</strong> kg</span>
+        </li>
+        } @empty {
+        <p class="vacio">Todavía no tiene cajas asignadas.</p>
+        }
+    </ul>
+    } @else {
+    <p class="vacio">Cargando…</p>
+    }
+    } @else {
+    <p class="vacio">Esta asociación no existe.</p>
+    }
+</main>
