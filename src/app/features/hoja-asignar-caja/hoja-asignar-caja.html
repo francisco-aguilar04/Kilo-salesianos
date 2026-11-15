@@ -15,7 +15,7 @@
             <button type="button" class="opcion" role="radio" [attr.aria-checked]="esSeleccionada(a)"
                 [class.seleccionada]="esSeleccionada(a)" (click)="elegir(a)">
                 <span class="opcion-nombre">{{ a.nombre }}</span>
-                <span class="opcion-datos">{{ kg(a.kgRecibidos) }} · {{ a.numCajas }} cajas</span>
+                <span class="opcion-datos">{{ kg(a.kgRecibidos) }} · {{ a.numCajas }} bolsas</span>
                 @if (primera) {
                 <span class="etiqueta">La que menos tiene</span>
                 }
@@ -68,21 +68,21 @@
 
         <div class="acciones">
             <button type="submit" class="boton primario" [disabled]="guardando()">
-                {{ guardando() ? 'Creando…' : 'Crear y asignar caja' }}
+                {{ guardando() ? 'Creando…' : 'Crear y asignar bolsa' }}
             </button>
         </div>
     </form>
 </section>
 } @else {
 <section class="dialogo" role="alertdialog" aria-modal="true" aria-labelledby="titulo-confirmar">
-    <h2 id="titulo-confirmar" class="titulo">¿Asignar la caja?</h2>
+    <h2 id="titulo-confirmar" class="titulo">¿Asignar la bolsa?</h2>
     <p class="texto">
-        La caja {{ caja().codigo }} ({{ kg(caja().pesoKg ?? 0) }}) irá a
+        La bolsa {{ caja().codigo }} ({{ kg(caja().pesoKg ?? 0) }}) irá a
         <strong>{{ seleccionada()?.nombre }}</strong>. No se podrá cambiar después.
     </p>
     <div class="acciones">
         <button type="button" class="boton primario" [disabled]="guardando()" (click)="confirmar()">
-            {{ guardando() ? 'Asignando…' : 'Asignar caja' }}
+            {{ guardando() ? 'Asignando…' : 'Asignar bolsa' }}
         </button>
         <button type="button" class="boton secundario" [disabled]="guardando()" (click)="volver()">
             Volver
