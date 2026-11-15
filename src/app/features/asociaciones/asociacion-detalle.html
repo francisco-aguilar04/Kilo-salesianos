@@ -21,6 +21,14 @@
         <span class="cifra"><strong>{{ totalCajas() }}</strong> cajas</span>
     </div>
 
+    @if (auth.isAdmin()) {
+    <div class="acciones-ficha">
+        <button type="button" class="boton secundario" (click)="abrirModal()">
+            <i class="bi bi-pencil"></i> Editar entidad
+        </button>
+    </div>
+    }
+
     <h2 class="subtitulo">Cajas asignadas</h2>
 
     @if (cajas(); as lista) {
@@ -42,6 +50,13 @@
     </ul>
     } @else {
     <p class="vacio">Cargando…</p>
+    }
+
+    @if (auth.isAdmin() && modalAbierto()) {
+    <app-modal-entidad titulo="Editar entidad" textoBoton="Guardar cambios" textoGuardando="Guardando…"
+        [nombreInicial]="a.nombre" [contactoInicial]="a.contacto" [idActual]="a.id" [asociaciones]="todas()"
+        [guardando]="guardando()" [errorExterno]="errorModal()" (guardar)="guardar($event)"
+        (cancelar)="cerrarModal()" />
     }
     } @else {
     <p class="vacio">Esta asociación no existe.</p>

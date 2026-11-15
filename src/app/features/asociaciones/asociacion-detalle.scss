@@ -145,3 +145,37 @@
     font-size: 1.1rem;
     color: #6b7280;
 }
+
+// ---- Editar entidad (B4) ----
+.acciones-ficha {
+    display: flex;
+    margin: 0 0 1.75rem;
+
+    .boton {
+        width: 100%; // en móvil, a todo el ancho
+
+        @media (min-width: 768px) {
+            width: auto;
+        }
+    }
+}
+
+.resumen+.acciones-ficha {
+    margin-top: -0.75rem; // pega el botón a los totales
+}
+
+.boton {
+    box-sizing: border-box;
+    padding: 0.7rem 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.secundario {
+    background: #ffffff;
+    border-color: #d1d5db;
+    color: #374151;
+}

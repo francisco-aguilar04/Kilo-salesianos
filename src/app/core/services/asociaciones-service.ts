@@ -95,4 +95,29 @@ export class AsociacionesService {
             }),
         );
     }
+
+    /** B4: edita nombre y contacto de una entidad (solo admin).
+     *  El id del documento NO cambia (las cajas apuntan a él); los kg y las cajas no se tocan.
+     *  RN-05: si el nombre nuevo, normalizado, coincide con el id de otra entidad, es un duplicado. */
+    async actualizarAsociacion(id: string, nombre: string, contacto = ''): Promise<void> {
+        const limpio = nombre.trim().replace(/\s+/g, ' ');
+        if (!limpio) throw new Error('El nombre es obligatorio');
+        const idNombre = limpio.toLowerCase().replace(/\//g, '-');
+        const contactoLimpio = contacto.trim().replace(/\s+/g, ' ');
+
+        return runInInjectionContext(this.injector, () =>
+            runTransaction(this.firestore, async (tx) => {
+                const refAsociacion = doc(this.firestore, 'asociaciones', id);
+                const snapAsociacion = await tx.get(refAsociacion);
+                if (!snapAsociacion.exists()) throw new Error('La asociación no existe');
+
+                if (idNombre !== id) {
+                    const snapOtra = await tx.get(doc(this.firestore, 'asociaciones', idNombre));
+                    if (snapOtra.exists()) throw new AsociacionDuplicadaError(limpio);
+                }
+
+                tx.update(refAsociacion, { nombre: limpio, contacto: contactoLimpio });
+            }),
+        );
+    }
 }
