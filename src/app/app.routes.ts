@@ -10,8 +10,14 @@ import { ROLES } from './core/constants/roles';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [guestGuard] }, // dice que antes de ir a 'x' pase por el guard
-  { path: '', component: InicioComponent, canActivate: [authGuard] }, // HU-12
-  { path: 'escanear', component: InicioComponent, canActivate: [authGuard] }, // la cámara
+  { path: '', component: InicioComponent, canActivate: [authGuard] }, // HU-12 --> mirar si esto hay que cambiarlo
+  { path: 'escanear', component: InicioComponent, canActivate: [authGuard] },
+  {
+    path: 'a-mano',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/introducir-a-mano/introducir-a-mano').then((m) => m.IntroducirAMano),
+  }, // la cámara
   { path: 'cajas', component: MisCajasComponent, canActivate: [authGuard] },
   { path: 'perfil', component: PerfilComponent, canActivate: [authGuard] }, // HU-13
   // Solo coordinador
