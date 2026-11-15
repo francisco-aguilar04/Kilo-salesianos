@@ -1,0 +1,64 @@
+<main class="pantalla">
+  <button type="button" class="atras" (click)="volver()" aria-label="Volver a la cámara">
+    <i class="bi bi-arrow-left"></i>
+  </button>
+
+  <h1 class="titulo">Introducir a mano</h1>
+  <p class="texto">
+    ¿Falla la cámara? Toca la categoría del alimento, igual que si escanearas su QR.
+  </p>
+
+  @if (cajaAbierta(); as caja) {
+    <p class="chip">
+      <span class="punto" [style.background]="categoriaCaja()?.color"></span>
+      Caja abierta: {{ caja.codigo }} · {{ categoriaCaja()?.nombre | titlecase }} ·
+      {{ caja.unidades }} uds
+    </p>
+  }
+
+  <div class="cuadricula">
+    @for (c of activas(); track c.id) {
+      <button type="button" class="tarjeta" [style.background]="c.color" (click)="tocar(c)">
+        <span class="codigo" [style.color]="c.color">{{ c.codigoQr }}</span>
+        <span class="nombre">{{ c.nombre | titlecase }}</span>
+      </button>
+    } @empty {
+      <p class="texto">Cargando categorías…</p>
+    }
+  </div>
+
+  @if (aviso(); as a) {
+    <app-aviso class="aviso-flotante" [tipo]="a.tipo" [titulo]="a.titulo" [mensaje]="a.mensaje" />
+  }
+</main>
+
+@if (seleccionada(); as c) {
+  <div class="capa" (click)="cancelar()"></div>
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="titulo-modal">
+    <div class="categoria">
+      <span class="color" [style.background]="c.color">{{ c.codigoQr }}</span>
+      <div>
+        <h2 id="titulo-modal" class="modal-titulo">{{ c.nombre | titlecase }}</h2>
+        <p class="texto">
+          @if (cajaAbierta(); as caja) {
+            Se añadirá a la caja {{ caja.codigo }}
+          } @else {
+            Se abrirá una caja nueva de {{ c.nombre }}
+          }
+        </p>
+      </div>
+    </div>
+    <button type="button" class="boton primario" [disabled]="guardando()" (click)="confirmar()">
+      @if (guardando()) {
+        Guardando…
+      } @else if (cajaAbierta()) {
+        Añadir a la caja
+      } @else {
+        Abrir caja nueva
+      }
+    </button>
+    <button type="button" class="boton secundario" [disabled]="guardando()" (click)="cancelar()">
+      Cancelar
+    </button>
+  </section>
+}

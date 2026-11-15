@@ -15,12 +15,13 @@ import { HojaNuevaCaja } from '../../hoja-nueva-caja/hoja-nueva-caja';
 import { HojaCerrarCaja } from '../../hoja-cerrar-caja/hoja-cerrar-caja';
 import { HojaAsignarCaja } from '../../hoja-asignar-caja/hoja-asignar-caja';
 import { BarraCaja } from '../../../shared/components/barra-caja/barra-caja';
-
-interface AvisoPantalla {
-  tipo: TipoAviso;
-  titulo: string;
-  mensaje: string;
-}
+import { Router } from '@angular/router';
+import {
+  AvisoPantalla,
+  avisoRechazo,
+  decidirEntrada,
+  vibrarRechazo,
+} from '../../../core/utils/entrada-alimento';
 
 @Component({
   selector: 'app-inicio',
@@ -36,6 +37,7 @@ export class InicioComponent {
   private readonly asociacionesService = inject(AsociacionesService);
   private readonly auth = inject(Auth);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
 
   // ---- Datos de Firestore en tiempo real ----
   protected readonly cajaAbierta = toSignal(
@@ -52,6 +54,7 @@ export class InicioComponent {
           .map((c) => [c.codigoQr, c]),
       ),
   );
+
   // Asociaciones de menos a más kg (HU-09), con kg y nº de cajas calculados desde las cajas reales
   protected readonly asociaciones = toSignal(this.asociacionesService.obtenerConTotales(), {
     initialValue: [],
@@ -84,7 +87,7 @@ export class InicioComponent {
   }
 
   protected atras(): void {
-    // TODO: según el Figma (1.1), esta flecha lleva a "Introducir a mano".
+    this.router.navigate(['/a-mano']); // HU-07
   }
 
   protected async alLeerCodigo(codigo: string): Promise<void> {
@@ -107,36 +110,30 @@ export class InicioComponent {
       return;
     }
 
-    const caja = this.cajaAbierta();
-    if (!caja) {
-      this.categoriaPendiente.set(categoria); // HU-03: abre la hoja "Nueva caja"
-      return;
-    }
-
-    if (categoria.id !== caja.categoriaId) {
-      // TEMPORAL: la HU-06 lo convierte en el aviso rojo EX-01 con vibración
-      this.mostrarAviso({
-        tipo: 'error',
-        titulo: 'No va en esta caja',
-        mensaje: `Este alimento es de ${categoria.nombre}`,
-      });
-      return;
-    }
-
-    try {
-      await this.cajas.sumarUnidad(caja.id);
-      // CP2: aviso verde corto para que no tape la siguiente lectura
-      this.mostrarAviso(
-        { tipo: 'exito', titulo: 'Alimento sumado', mensaje: `Caja ${caja.codigo}` },
-        1500,
-      );
-    } catch (e) {
-      console.error(e);
-      this.mostrarAviso({
-        tipo: 'error',
-        titulo: 'No se ha podido sumar',
-        mensaje: 'Inténtalo de nuevo',
-      });
+    const decision = decidirEntrada(categoria, this.cajaAbierta());
+    switch (decision.accion) {
+      case 'abrir':
+        this.categoriaPendiente.set(categoria); // HU-03: hoja "Nueva caja"
+        return;
+      case 'rechazar':
+        vibrarRechazo(); // HU-06
+        this.mostrarAviso(avisoRechazo(categoria, decision.caja));
+        return;
+      case 'sumar':
+        try {
+          await this.cajas.sumarUnidad(decision.caja.id);
+          this.mostrarAviso(
+            { tipo: 'exito', titulo: 'Alimento sumado', mensaje: `Caja ${decision.caja.codigo}` },
+            1500,
+          );
+        } catch (e) {
+          console.error(e);
+          this.mostrarAviso({
+            tipo: 'error',
+            titulo: 'No se ha podido sumar',
+            mensaje: 'Inténtalo de nuevo',
+          });
+        }
     }
   }
 
