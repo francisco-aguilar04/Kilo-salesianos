@@ -4,11 +4,17 @@ import {
     collectionData,
     doc,
     docData,
+    DocumentReference,
     Firestore,
+    getDocs,
+    query,
     runTransaction,
+    where,
+    writeBatch,
 } from '@angular/fire/firestore';
 import { combineLatest, map, Observable } from 'rxjs';
 import { Asociacion } from '../interfaces/asociacion';
+import { ESTADOS_CAJA } from '../constants/estados-caja';
 import { AsociacionDuplicadaError, CajasService } from './caja-service';
 
 @Service()
@@ -119,5 +125,40 @@ export class AsociacionesService {
                 tx.update(refAsociacion, { nombre: limpio, contacto: contactoLimpio });
             }),
         );
+    }
+
+    /** B5: borra una entidad (solo admin). Nada se borra en cascada: las cajas que apuntaban a ella
+     *  vuelven a estado Cerrada con asociacionId = null, así quedan pendientes de asignar otra vez.
+     *  Las cajas y la entidad se cambian en el mismo lote, así que se hace todo o nada. Un lote admite
+     *  500 operaciones: si hubiera más cajas, se reparten en varios lotes y la entidad se borra en el último. */
+    async eliminarAsociacion(id: string): Promise<void> {
+        const TAMANO_LOTE = 450;
+
+        const consulta = runInInjectionContext(this.injector, () =>
+            query(collection(this.firestore, 'cajas'), where('asociacionId', '==', id)),
+        );
+        const snapCajas = await runInInjectionContext(this.injector, () => getDocs(consulta));
+        const refsCajas = snapCajas.docs.map((d) => d.ref);
+        const refAsociacion = runInInjectionContext(this.injector, () =>
+            doc(this.firestore, 'asociaciones', id),
+        );
+
+        const lotes: DocumentReference[][] = [];
+        for (let i = 0; i < refsCajas.length; i += TAMANO_LOTE) {
+            lotes.push(refsCajas.slice(i, i + TAMANO_LOTE));
+        }
+        if (lotes.length === 0) lotes.push([]); // entidad sin cajas: solo se borra la entidad
+
+        for (let i = 0; i < lotes.length; i++) {
+            const esUltimo = i === lotes.length - 1;
+            await runInInjectionContext(this.injector, () => {
+                const lote = writeBatch(this.firestore);
+                lotes[i].forEach((ref) =>
+                    lote.update(ref, { estado: ESTADOS_CAJA.CERRADA, asociacionId: null }),
+                );
+                if (esUltimo) lote.delete(refAsociacion);
+                return lote.commit();
+            });
+        }
     }
 }

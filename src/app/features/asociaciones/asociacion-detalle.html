@@ -26,6 +26,9 @@
         <button type="button" class="boton secundario" (click)="abrirModal()">
             <i class="bi bi-pencil"></i> Editar entidad
         </button>
+        <button type="button" class="boton peligro" (click)="abrirBorrado()">
+            <i class="bi bi-trash"></i> Borrar entidad
+        </button>
     </div>
     }
 
@@ -57,6 +60,12 @@
         [nombreInicial]="a.nombre" [contactoInicial]="a.contacto" [idActual]="a.id" [asociaciones]="todas()"
         [guardando]="guardando()" [errorExterno]="errorModal()" (guardar)="guardar($event)"
         (cancelar)="cerrarModal()" />
+    }
+
+    @if (auth.isAdmin() && confirmandoBorrado()) {
+    <app-modal-confirmar titulo="¿Borrar entidad?" [mensaje]="mensajeBorrado()" textoBoton="Borrar entidad"
+        textoProcesando="Borrando…" [peligro]="true" [procesando]="borrando()" [error]="errorBorrado()"
+        (confirmar)="borrar()" (cancelar)="cancelarBorrado()" />
     }
     } @else {
     <p class="vacio">Esta asociación no existe.</p>
