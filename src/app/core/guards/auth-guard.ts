@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { map, take } from 'rxjs';
 import { Auth } from '../services/auth';
-import { Rol } from '../constants/roles';
+import { ROLES, Rol } from '../constants/roles';
 
 // Sin sesión -> al login
 export const authGuard: CanActivateFn = () => {
@@ -56,3 +56,6 @@ export const roleGuard = (rolRequerido: Rol): CanActivateFn => () => {
 
   );
 };
+
+// Solo admin (coordinador) -> los voluntarios van al inicio
+export const adminGuard: CanActivateFn = roleGuard(ROLES.COORDINADOR);

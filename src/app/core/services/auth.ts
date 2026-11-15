@@ -1,4 +1,4 @@
-import { Service, inject, Injector, runInInjectionContext } from '@angular/core';
+import { Service, inject, Injector, runInInjectionContext, computed } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
     Auth as FirebaseAuth,
@@ -10,7 +10,7 @@ import { Firestore, doc, getDoc } from '@angular/fire/firestore';
 import { Observable, from, of } from 'rxjs';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
 import { Usuario } from '../interfaces/usuario';
-import { Rol } from '../constants/roles';
+import { ROLES, Rol } from '../constants/roles';
 
 @Service()
 export class Auth {
@@ -45,8 +45,16 @@ export class Auth {
         map((usuario) => usuario?.rol ?? null), //extrae el rol del usuario autenticado
     );
 
+    // Admin = coordinador (mismo rol, sin renombrar)
+    readonly isAdmin$: Observable<boolean> = this.rol$.pipe(
+        map((rol) => rol === ROLES.COORDINADOR),
+    );
+
     readonly usuario = toSignal(this.usuario$, { initialValue: null });
     readonly rol = toSignal(this.rol$, { initialValue: null });
+
+    // true solo si el rol cargado es coordinador; mientras carga o sin sesión es false
+    readonly isAdmin = computed(() => this.rol() === ROLES.COORDINADOR);
 
     //recibe un correo y contraseña y firebase usa su authenticador para ver que pueda inicar sesion
     async login(email: string, password: string): Promise<void> {
