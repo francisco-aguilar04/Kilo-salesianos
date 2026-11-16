@@ -4,8 +4,10 @@ import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { Auth, CambioPasswordError } from '../../core/services/auth';
-import { ROLES } from '../../core/constants/roles';
+import { ROLES, Rol } from '../../core/constants/roles';
 import { ResumenDiaService } from '../../core/services/resumen-dia-service';
+import { CrearUsuarioError, UsuariosService } from '../../core/services/usuarios-service';
+import { Usuario } from '../../core/interfaces/usuario';
 import { DatosPassword, ModalPassword } from '../../shared/components/modal-password/modal-password';
 
 @Component({
@@ -21,10 +23,102 @@ export class PerfilComponent {
 
   private readonly resumenService = inject(ResumenDiaService);
 
+  private readonly usuariosService = inject(UsuariosService);
+
+  protected readonly tab = signal<'perfil' | 'usuarios'>('perfil');
+
+  // Solo se consulta Firestore si el usuario es coordinador.
+  protected readonly usuarios = toSignal(
+    this.authService.isAdmin$.pipe(
+      switchMap((admin) => (admin ? this.usuariosService.usuarios$ : of([] as Usuario[]))),
+    ),
+    { initialValue: [] as Usuario[] },
+  );
+
+  protected cambiarTab(tab: 'perfil' | 'usuarios'): void {
+    this.tab.set(tab);
+  }
+
+  protected readonly ROLES = ROLES;
+  protected readonly formAbierto = signal(false);
+  protected readonly nuevoNombre = signal('');
+  protected readonly nuevoEmail = signal('');
+  protected readonly nuevaPassword = signal('');
+  protected readonly nuevoRol = signal<Rol>(ROLES.VOLUNTARIO);
+  protected readonly creandoUsuario = signal(false);
+  protected readonly errorCrear = signal<string | null>(null);
+  protected readonly usuarioCreado = signal<string | null>(null);
+
+  protected readonly formValido = computed(
+    () =>
+      this.nuevoNombre().trim().length > 0 &&
+      /^\S+@\S+\.\S+$/.test(this.nuevoEmail().trim()) &&
+      this.nuevaPassword().length >= 6,
+  );
+
+  protected abrirForm(): void {
+    this.usuarioCreado.set(null);
+    this.errorCrear.set(null);
+    this.formAbierto.set(true);
+  }
+
+  protected cerrarForm(): void {
+    if (this.creandoUsuario()) return;
+    this.formAbierto.set(false);
+    this.errorCrear.set(null);
+    this.nuevoNombre.set('');
+    this.nuevoEmail.set('');
+    this.nuevaPassword.set('');
+    this.nuevoRol.set(ROLES.VOLUNTARIO);
+  }
+
+  protected async crearUsuario(): Promise<void> {
+    if (!this.formValido() || this.creandoUsuario()) return;
+
+    this.errorCrear.set(null);
+    this.creandoUsuario.set(true);
+    const nombre = this.nuevoNombre().trim();
+    try {
+      await this.usuariosService.crearUsuario({
+        nombre,
+        email: this.nuevoEmail().trim(),
+        password: this.nuevaPassword(),
+        rol: this.nuevoRol(),
+      });
+      this.creandoUsuario.set(false);
+      this.cerrarForm();
+      this.usuarioCreado.set(`Usuario ${nombre} creado correctamente`);
+    } catch (e) {
+      const motivo = e instanceof CrearUsuarioError ? e.motivo : 'desconocido';
+      switch (motivo) {
+        case 'email-en-uso':
+          this.errorCrear.set('Ya existe un usuario con ese email');
+          break;
+        case 'email-invalido':
+          this.errorCrear.set('El email no es válido');
+          break;
+        case 'password-debil':
+          this.errorCrear.set('La contraseña es demasiado débil. Usa al menos 6 caracteres');
+          break;
+        case 'sin-conexion':
+          this.errorCrear.set('Sin conexión. Comprueba tu internet e inténtalo de nuevo');
+          break;
+        case 'error-guardado':
+          this.errorCrear.set('La cuenta se creó, pero no se pudo guardar el rol. Avisa al desarrollador');
+          break;
+        default:
+          this.errorCrear.set('No se ha podido crear el usuario. Inténtalo de nuevo');
+      }
+    } finally {
+      this.creandoUsuario.set(false);
+    }
+  }
+
   // Se usa para redirigir al login tras cerrar sesión.
   private readonly router = inject(Router);
 
   protected readonly usuario = this.authService.usuario;
+  protected readonly esAdmin = this.authService.isAdmin;
 
   /**
    * Iniciales para el avatar: primera letra de las dos primeras palabras del

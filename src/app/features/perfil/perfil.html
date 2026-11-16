@@ -6,6 +6,16 @@
         <span class="rol">{{ rolTexto() }}</span>
     </header>
 
+    @if (esAdmin()) {
+    <nav class="tabs">
+        <button type="button" class="tab" [class.tab--activo]="tab() === 'perfil'" (click)="cambiarTab('perfil')">Mi
+            perfil</button>
+        <button type="button" class="tab" [class.tab--activo]="tab() === 'usuarios'"
+            (click)="cambiarTab('usuarios')">Usuarios</button>
+    </nav>
+    }
+
+    @if (tab() === 'perfil') {
     <section class="dia">
         <h2 class="dia__titulo">Tu día</h2>
         <div class="dia__tarjetas">
@@ -26,6 +36,62 @@
             <button type="button" class="cerrar-sesion" (click)="logout()">Cerrar sesión</button>
         </div>
     </section>
+    }
+
+    @if (tab() === 'usuarios') {
+    <section class="usuarios">
+        <h2 class="dia__titulo">Usuarios</h2>
+        @if (usuarioCreado()) {
+        <p class="exito">{{ usuarioCreado() }}</p>
+        }
+        @if (!formAbierto()) {
+        <button type="button" class="nuevo-usuario" (click)="abrirForm()">+ Nuevo usuario</button>
+        } @else {
+        <form class="form-usuario" (submit)="$event.preventDefault(); crearUsuario()">
+            <label class="campo">
+                <span>Nombre</span>
+                <input type="text" [value]="nuevoNombre()" (input)="nuevoNombre.set($any($event.target).value)" />
+            </label>
+            <label class="campo">
+                <span>Email</span>
+                <input type="email" [value]="nuevoEmail()" (input)="nuevoEmail.set($any($event.target).value)" />
+            </label>
+            <label class="campo">
+                <span>Contraseña inicial (mín. 6)</span>
+                <input type="text" [value]="nuevaPassword()" (input)="nuevaPassword.set($any($event.target).value)" />
+            </label>
+            <label class="campo">
+                <span>Rol</span>
+                <select [value]="nuevoRol()" (change)="nuevoRol.set($any($event.target).value)">
+                    <option [value]="ROLES.VOLUNTARIO">Voluntario</option>
+                    <option [value]="ROLES.COORDINADOR">Coordinador</option>
+                </select>
+            </label>
+            @if (errorCrear()) {
+            <p class="error-form">{{ errorCrear() }}</p>
+            }
+            <div class="form-usuario__acciones">
+                <button type="button" class="btn-secundario" (click)="cerrarForm()">Cancelar</button>
+                <button type="submit" class="btn-primario" [disabled]="!formValido()">Crear</button>
+            </div>
+        </form>
+        }
+        <ul class="usuarios__lista">
+            @for (u of usuarios(); track u.uid) {
+            <li class="usuario">
+                <div class="usuario__datos">
+                    <span class="usuario__nombre">{{ u.nombre }}</span>
+                    <span class="usuario__email">{{ u.email }}</span>
+                </div>
+                <span class="usuario__rol">{{ u.rol }}</span>
+            </li>
+            } @empty {
+            <li class="usuario usuario--vacio">No hay usuarios todavía</li>
+            }
+        </ul>
+    </section>
+    }
+
 </main>
 
 @if (modalPasswordAbierto()) {

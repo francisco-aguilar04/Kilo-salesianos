@@ -45,6 +45,33 @@
     font-weight: 600;
 }
 
+// Tabs "Mi perfil" / "Usuarios" (solo coordinador)
+.tabs {
+    display: flex;
+    gap: 0.5rem;
+    max-width: 24rem;
+    margin: 1.5rem auto 0;
+    padding: 0 1rem;
+}
+
+.tab {
+    flex: 1;
+    padding: 0.7rem 1rem;
+    border: 2px solid #e32124;
+    border-radius: 999px;
+    background: #fff;
+    color: #e32124;
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+
+    &--activo {
+        background: #e32124;
+        color: #fff;
+    }
+}
+
 .dia {
     max-width: 24rem;
     margin: 0 auto;
@@ -83,6 +110,172 @@
 .tarjeta__etiqueta {
     font-size: 0.8rem;
     color: #666;
+}
+
+// Lista de usuarios (tab Usuarios)
+.usuarios {
+    max-width: 24rem;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 0;
+}
+
+.usuarios__lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.usuario {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid #e5e5e5;
+    border-radius: 1rem;
+    background: #fff;
+}
+
+.usuario__datos {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.usuario__nombre {
+    font-weight: 700;
+}
+
+.usuario__email {
+    overflow: hidden;
+    font-size: 0.8rem;
+    color: #666;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.usuario__rol {
+    flex-shrink: 0;
+    padding: 0.25rem 0.8rem;
+    border-radius: 999px;
+    background: #fdeaea;
+    color: #e32124;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.usuario--vacio {
+    justify-content: center;
+    color: #666;
+}
+
+// Botón "+ Nuevo usuario"
+.nuevo-usuario {
+    width: 100%;
+    margin-bottom: 1rem;
+    padding: 0.9rem;
+    border: 2px solid #e32124;
+    border-radius: 1rem;
+    background: #fff;
+    color: #e32124;
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+
+    &:hover {
+        background: #fdeaea;
+    }
+}
+
+// Formulario de alta de usuario
+.form-usuario {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    margin-bottom: 1rem;
+    padding: 1.25rem 1rem;
+    border: 1px solid #e5e5e5;
+    border-radius: 1rem;
+    background: #fff;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+
+    span {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #666;
+    }
+
+    input,
+    select {
+        box-sizing: border-box;
+        width: 100%;
+        padding: 0.8rem 0.9rem;
+        border: 1px solid #d5d5d9;
+        border-radius: 0.75rem;
+        background: #fff;
+        color: #222;
+        font: inherit;
+        font-size: 1rem;
+
+        &:focus {
+            outline: none;
+            border-color: #e32124;
+            box-shadow: 0 0 0 3px rgba(227, 33, 36, 0.15);
+        }
+    }
+}
+
+.form-usuario__acciones {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.btn-primario,
+.btn-secundario {
+    flex: 1;
+    padding: 0.85rem 1rem;
+    border-radius: 0.75rem;
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-primario {
+    border: 2px solid #e32124;
+    background: #e32124;
+    color: #fff;
+
+    &:hover:not(:disabled) {
+        background: #c81c1f;
+        border-color: #c81c1f;
+    }
+
+    &:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+}
+
+.btn-secundario {
+    border: 2px solid #d5d5d9;
+    background: #fff;
+    color: #555;
+
+    &:hover {
+        background: #efeff2;
+    }
 }
 
 // Aviso al cambiar la contraseña (B6)
@@ -179,6 +372,21 @@
         font-weight: 700;
     }
 
+    // Tabs alineados con el contenido
+    .tabs {
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 72rem;
+        margin: 1.5rem auto 0;
+        padding: 0 2rem;
+    }
+
+    .tab {
+        flex: none;
+        padding: 0.7rem 2.5rem;
+        font-size: 1.05rem;
+    }
+
     // "Tu día" ocupa el espacio restante; los botones quedan abajo del todo
     .dia {
         display: flex;
@@ -214,6 +422,62 @@
 
     .tarjeta__etiqueta {
         font-size: 1.1rem;
+    }
+
+    // Lista de usuarios, con el mismo ancho que "Tu día"
+    .usuarios {
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 72rem;
+        padding: 2rem 2rem 1rem;
+    }
+
+    .usuarios__lista {
+        gap: 0.75rem;
+    }
+
+    .usuario {
+        padding: 1.1rem 1.5rem;
+        border-radius: 1.25rem;
+    }
+
+    .usuario__nombre {
+        font-size: 1.1rem;
+    }
+
+    .usuario__email {
+        font-size: 0.95rem;
+    }
+
+    .usuario__rol {
+        padding: 0.35rem 1.1rem;
+        font-size: 0.9rem;
+    }
+
+    // Formulario de alta: más ancho, campos en dos columnas
+    .nuevo-usuario {
+        width: auto;
+        padding: 0.8rem 2rem;
+        font-size: 1.05rem;
+    }
+
+    .form-usuario {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+        padding: 1.75rem 2rem;
+        border-radius: 1.25rem;
+    }
+
+    .form-usuario__acciones {
+        grid-column: 1 / -1;
+        justify-content: flex-end;
+    }
+
+    .btn-primario,
+    .btn-secundario {
+        flex: none;
+        padding: 0.8rem 2.5rem;
     }
 
     .exito {
@@ -258,4 +522,15 @@
             background: #c81c1f;
         }
     }
+}
+
+.error-form {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 0.7rem 1rem;
+    border-radius: 0.75rem;
+    background: #fdeaea;
+    color: #b71c1c;
+    font-size: 0.9rem;
+    font-weight: 600;
 }
