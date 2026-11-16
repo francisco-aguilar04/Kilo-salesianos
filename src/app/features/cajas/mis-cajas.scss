@@ -1,69 +1,84 @@
 .mis-cajas {
-    max-width: 24rem;
-    margin: 0 auto;
-    padding: calc(env(safe-area-inset-top, 0px) + 2rem) 1rem calc(var(--navbar-alto) + env(safe-area-inset-bottom, 0px) + 1rem);
+  max-width: 24rem;
+  margin: 0 auto;
+  padding: calc(env(safe-area-inset-top, 0px) + 2rem) 1rem
+    calc(var(--navbar-alto) + env(safe-area-inset-bottom, 0px) + 1rem);
 
-    @media (min-width: 768px) {
-        max-width: 48rem;
-    }
+  @media (min-width: 768px) {
+    max-width: 48rem;
+  }
 
-    @media (min-width: 1100px) {
-        max-width: 70rem;
-    }
+  @media (min-width: 1100px) {
+    max-width: 70rem;
+  }
 }
 
 .grupo {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
-    margin-top: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
 
-    @media (min-width: 768px) {
-        grid-template-columns: repeat(2, 1fr);
-    }
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 
-    @media (min-width: 1100px) {
-        grid-template-columns: repeat(3, 1fr);
-    }
+  @media (min-width: 1100px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .cabecera h1 {
-    margin: 0;
-    font-size: 1.75rem;
+  margin: 0;
+  font-size: 1.75rem;
 }
 
 .fecha {
-    margin: 0.25rem 0 0;
-    font-size: 0.85rem;
-    color: #666;
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  color: #666;
 }
 
 .grupo {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
 }
 
 .grupo__titulo {
-    grid-column: 1 / -1;
-    margin: 0;
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #666;
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #666;
 }
 
 .vacio {
-    margin-top: 2rem;
-    text-align: center;
-    color: #666;
+  margin-top: 2rem;
+  text-align: center;
+  color: #666;
 }
 
 .aviso-flotante {
-    position: fixed;
-    top: calc(env(safe-area-inset-top, 0px) + 1rem);
-    left: 1rem;
-    right: 1rem;
-    z-index: 30;
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 1rem);
+  left: 1rem;
+  right: 1rem;
+  z-index: 30;
+}
+
+.cerrada {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.boton-reabrir {
+  align-self: flex-end;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid #666;
+  border-radius: 999px;
+  background: none;
+  font-size: 0.8rem;
 }
