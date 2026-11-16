@@ -18,6 +18,17 @@
                 <span class="tarjeta__etiqueta">recogidos</span>
             </div>
         </div>
-        <button type="button" class="cerrar-sesion" (click)="logout()">Cerrar sesión</button>
+
+        <div class="acciones">
+            <button type="button" class="cambiar-password" (click)="abrirModalPassword()">
+                Cambiar contraseña
+            </button>
+            <button type="button" class="cerrar-sesion" (click)="logout()">Cerrar sesión</button>
+        </div>
     </section>
 </main>
+
+@if (modalPasswordAbierto()) {
+<app-modal-password [guardando]="cambiandoPassword()" [errorActual]="errorActual()" [errorGeneral]="errorGeneral()"
+    (guardar)="cambiarPassword($event)" (cancelar)="cerrarModalPassword()" />
+}

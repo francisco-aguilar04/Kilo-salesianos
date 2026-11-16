@@ -1,15 +1,17 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { Auth } from '../../core/services/auth';
+import { Auth, CambioPasswordError } from '../../core/services/auth';
 import { ROLES } from '../../core/constants/roles';
 import { ResumenDiaService } from '../../core/services/resumen-dia-service';
+import { DatosPassword, ModalPassword } from '../../shared/components/modal-password/modal-password';
 
 @Component({
   selector: 'app-perfil',
   standalone: true,
+  imports: [ModalPassword],
   templateUrl: './perfil.html',
   styleUrl: './perfil.scss',
 })
@@ -92,6 +94,66 @@ export class PerfilComponent {
     });
     return kg + ' kg';
   });
+
+  // ---- B6: cambiar contraseña propia ----
+  protected readonly modalPasswordAbierto = signal(false);
+  protected readonly cambiandoPassword = signal(false);
+  protected readonly errorActual = signal<string | null>(null);
+  protected readonly errorGeneral = signal<string | null>(null);
+
+  protected abrirModalPassword(): void {
+    this.errorActual.set(null);
+    this.errorGeneral.set(null);
+    this.modalPasswordAbierto.set(true);
+  }
+
+  protected cerrarModalPassword(): void {
+    if (this.cambiandoPassword()) return;
+    this.modalPasswordAbierto.set(false);
+  }
+
+  protected async cambiarPassword(datos: DatosPassword): Promise<void> {
+    if (this.cambiandoPassword()) return;
+
+    this.errorActual.set(null);
+    this.errorGeneral.set(null);
+    this.cambiandoPassword.set(true);
+
+    let cambiada = false;
+    try {
+      await this.authService.cambiarPassword(datos.actual, datos.nueva);
+      cambiada = true;
+    } catch (e) {
+      const motivo = e instanceof CambioPasswordError ? e.motivo : 'desconocido';
+      switch (motivo) {
+        case 'actual-incorrecta':
+          this.errorActual.set('La contraseña actual no es correcta');
+          break;
+        case 'password-debil':
+          this.errorGeneral.set('La nueva contraseña es demasiado débil. Usa al menos 6 caracteres');
+          break;
+        case 'demasiados-intentos':
+          this.errorGeneral.set('Demasiados intentos. Espera unos minutos e inténtalo de nuevo');
+          break;
+        case 'sin-conexion':
+          this.errorGeneral.set('Sin conexión. Comprueba tu internet e inténtalo de nuevo');
+          break;
+        case 'sin-sesion':
+          this.errorGeneral.set('Tu sesión ha caducado. Vuelve a iniciar sesión');
+          break;
+        default:
+          this.errorGeneral.set('No se ha podido cambiar la contraseña. Inténtalo de nuevo');
+      }
+    } finally {
+      this.cambiandoPassword.set(false);
+    }
+
+    // Contraseña cambiada: cerramos el modal, la sesión y volvemos al login.
+    if (cambiada) {
+      this.modalPasswordAbierto.set(false);
+      await this.logout();
+    }
+  }
 
   /**
    * Cierra la sesión y redirige a la pantalla de login.

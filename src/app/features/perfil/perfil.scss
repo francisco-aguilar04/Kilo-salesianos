@@ -85,9 +85,40 @@
     color: #666;
 }
 
+// Aviso al cambiar la contraseña (B6)
+.exito {
+    margin: 1rem 0 0;
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    background: #e8f5e9;
+    color: #1b5e20;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+// Cambiar contraseña y cerrar sesión: apilados en móvil
+.acciones {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.cambiar-password {
+    width: 100%;
+    padding: 1rem;
+    border: 0;
+    border-radius: 1rem;
+    background: #efeff2;
+    color: #333;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
 .cerrar-sesion {
     width: 100%;
-    margin-top: 1rem;
     padding: 1rem;
     border: 0;
     border-radius: 1rem;
@@ -148,7 +179,7 @@
         font-weight: 700;
     }
 
-    // "Tu día" ocupa el espacio restante; el botón queda abajo del todo
+    // "Tu día" ocupa el espacio restante; los botones quedan abajo del todo
     .dia {
         display: flex;
         flex: 1;
@@ -185,16 +216,43 @@
         font-size: 1.1rem;
     }
 
-    // Botón legible: rojo sólido, texto blanco y más grande
+    .exito {
+        align-self: center;
+        padding: 0.8rem 2rem;
+        font-size: 1.05rem;
+    }
+
+    // Los dos botones, uno junto al otro y centrados abajo del todo
+    .acciones {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: auto;
+    }
+
+    // Botones legibles: más grandes, el de cerrar sesión en rojo sólido
+    .cambiar-password,
     .cerrar-sesion {
         width: auto;
-        align-self: center;
-        margin-top: auto;
         padding: 0.9rem 2.5rem;
-        background: #e32124;
-        color: #fff;
         font-size: 1.1rem;
         font-weight: 700;
+    }
+
+    .cambiar-password {
+        border: 2px solid #e32124;
+        background: #fff;
+        color: #e32124;
+
+        &:hover {
+            background: #fdeaea;
+        }
+    }
+
+    .cerrar-sesion {
+        background: #e32124;
+        color: #fff;
 
         &:hover {
             background: #c81c1f;

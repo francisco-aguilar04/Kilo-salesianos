@@ -2,8 +2,11 @@ import { Service, inject, Injector, runInInjectionContext, computed } from '@ang
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
     Auth as FirebaseAuth,
+    EmailAuthProvider,
+    reauthenticateWithCredential,
     signInWithEmailAndPassword,
     signOut,
+    updatePassword,
     user,
 } from '@angular/fire/auth';
 import { Firestore, doc, getDoc } from '@angular/fire/firestore';
@@ -11,6 +14,22 @@ import { Observable, from, of } from 'rxjs';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
 import { Usuario } from '../interfaces/usuario';
 import { ROLES, Rol } from '../constants/roles';
+
+/** B6: motivo por el que no se ha podido cambiar la contraseña. */
+export type MotivoCambioPassword =
+    | 'sin-sesion'
+    | 'actual-incorrecta'
+    | 'password-debil'
+    | 'demasiados-intentos'
+    | 'sin-conexion'
+    | 'desconocido';
+
+export class CambioPasswordError extends Error {
+    constructor(readonly motivo: MotivoCambioPassword) {
+        super(`No se ha podido cambiar la contraseña: ${motivo}`);
+        this.name = 'CambioPasswordError';
+    }
+}
 
 @Service()
 export class Auth {
@@ -65,6 +84,42 @@ export class Auth {
 
     async logout(): Promise<void> {
         await runInInjectionContext(this.injector, () => signOut(this.firebaseAuth));
+    }
+
+    /** B6: cambia la contraseña del usuario con sesión.
+     *  Firebase exige una sesión reciente para cambiarla, así que primero se reautentica
+     *  con la contraseña actual y después se actualiza. La sesión sigue abierta al terminar.
+     *  Si algo falla, lanza CambioPasswordError con el motivo. */
+    async cambiarPassword(actual: string, nueva: string): Promise<void> {
+        const usuarioFirebase = this.firebaseAuth.currentUser;
+        if (!usuarioFirebase || !usuarioFirebase.email) throw new CambioPasswordError('sin-sesion');
+
+        try {
+            const credencial = EmailAuthProvider.credential(usuarioFirebase.email, actual);
+            await runInInjectionContext(this.injector, () =>
+                reauthenticateWithCredential(usuarioFirebase, credencial),
+            );
+            await runInInjectionContext(this.injector, () =>
+                updatePassword(usuarioFirebase, nueva),
+            );
+        } catch (e) {
+            const codigo = (e as { code?: string })?.code;
+            switch (codigo) {
+                case 'auth/wrong-password':
+                case 'auth/invalid-credential':
+                case 'auth/invalid-login-credentials':
+                    throw new CambioPasswordError('actual-incorrecta');
+                case 'auth/weak-password':
+                    throw new CambioPasswordError('password-debil');
+                case 'auth/too-many-requests':
+                    throw new CambioPasswordError('demasiados-intentos');
+                case 'auth/network-request-failed':
+                    throw new CambioPasswordError('sin-conexion');
+                default:
+                    console.error(e);
+                    throw new CambioPasswordError('desconocido');
+            }
+        }
     }
 
 }
