@@ -5,7 +5,7 @@
     <span class="asa" aria-hidden="true"></span>
 
     <div>
-        <h2 id="titulo-asignar" class="titulo">¿A qué asociación va?</h2>
+        <h2 id="titulo-asignar" class="titulo">¿A qué entidad va?</h2>
         <p class="texto">{{ caja().codigo }} · {{ kg(caja().pesoKg ?? 0) }}</p>
     </div>
 
@@ -15,18 +15,25 @@
             <button type="button" class="opcion" role="radio" [attr.aria-checked]="esSeleccionada(a)"
                 [class.seleccionada]="esSeleccionada(a)" (click)="elegir(a)">
                 <span class="opcion-nombre">{{ a.nombre }}</span>
-                <span class="opcion-datos">{{ kg(a.kgRecibidos) }} · {{ a.numCajas }} cajas</span>
+                <span class="opcion-datos">{{ kg(a.kgRecibidos) }} · {{ a.numCajas }} bolsas</span>
                 @if (primera) {
                 <span class="etiqueta">La que menos tiene</span>
                 }
             </button>
         </li>
         } @empty {
-        <li class="texto">Todavía no hay asociaciones.</li>
+        <li class="texto">
+            Todavía no hay entidades.
+            @if (!auth.isAdmin()) {
+            Avisa a un coordinador para que la registre.
+            }
+        </li>
         }
     </ul>
 
-    <button type="button" class="boton nueva" (click)="abrirNueva()">+ Nueva asociación</button>
+    @if (auth.isAdmin()) {
+    <button type="button" class="boton nueva" (click)="abrirNueva()">+ Nueva entidad</button>
+    }
 
     <div class="acciones">
         <button type="button" class="boton primario" [disabled]="!seleccionada()" (click)="continuar()">
@@ -44,7 +51,7 @@
             <i class="bi bi-arrow-left"></i>
         </button>
         <div>
-            <h2 id="titulo-nueva" class="titulo">Nueva asociación</h2>
+            <h2 id="titulo-nueva" class="titulo">Nueva entidad</h2>
             <p class="texto">{{ caja().codigo }} · {{ kg(caja().pesoKg ?? 0) }}</p>
         </div>
     </div>
@@ -52,7 +59,7 @@
     <form class="formulario" (submit)="$event.preventDefault(); crear()">
         <label class="campo">
             <span class="campo-etiqueta">Nombre</span>
-            <input #campo type="text" autocomplete="off" placeholder="Nombre de la asociación" [value]="nombreNuevo()"
+            <input #campo type="text" autocomplete="off" placeholder="Nombre de la entidad" [value]="nombreNuevo()"
                 [class.invalido]="errorNombre()" [disabled]="guardando()" (input)="escribir(campo.value)" />
         </label>
         @if (errorNombre(); as error) {
@@ -61,21 +68,21 @@
 
         <div class="acciones">
             <button type="submit" class="boton primario" [disabled]="guardando()">
-                {{ guardando() ? 'Creando…' : 'Crear y asignar caja' }}
+                {{ guardando() ? 'Creando…' : 'Crear y asignar bolsa' }}
             </button>
         </div>
     </form>
 </section>
 } @else {
 <section class="dialogo" role="alertdialog" aria-modal="true" aria-labelledby="titulo-confirmar">
-    <h2 id="titulo-confirmar" class="titulo">¿Asignar la caja?</h2>
+    <h2 id="titulo-confirmar" class="titulo">¿Asignar la bolsa?</h2>
     <p class="texto">
-        La caja {{ caja().codigo }} ({{ kg(caja().pesoKg ?? 0) }}) irá a
+        La bolsa {{ caja().codigo }} ({{ kg(caja().pesoKg ?? 0) }}) irá a
         <strong>{{ seleccionada()?.nombre }}</strong>. No se podrá cambiar después.
     </p>
     <div class="acciones">
         <button type="button" class="boton primario" [disabled]="guardando()" (click)="confirmar()">
-            {{ guardando() ? 'Asignando…' : 'Asignar caja' }}
+            {{ guardando() ? 'Asignando…' : 'Asignar bolsa' }}
         </button>
         <button type="button" class="boton secundario" [disabled]="guardando()" (click)="volver()">
             Volver

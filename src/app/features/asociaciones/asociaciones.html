@@ -1,32 +1,46 @@
 <main class="pantalla">
     <header class="cabecera">
-        <h1>Asociaciones</h1>
+        <h1>Entidades</h1>
         @if (asociaciones(); as lista) {
         <span class="contador">{{ lista.length }}</span>
         }
     </header>
 
+    @if (auth.isAdmin()) {
+    <div class="barra">
+        <button type="button" class="boton primario" (click)="abrirModal()">
+            <i class="bi bi-plus-lg"></i> Registrar entidad
+        </button>
+    </div>
+    }
+
     @if (asociaciones(); as lista) {
     <ul class="lista">
         @for (a of lista; track a.id) {
-        <li class="tarjeta">
-            <div class="avatar">{{ a.nombre.charAt(0) }}</div>
+        <li>
+            <a class="tarjeta" [routerLink]="['/asociaciones', a.id]">
+                <div class="avatar">{{ a.nombre.charAt(0) }}</div>
 
-            <div class="info">
-                <h2>{{ a.nombre }}</h2>
-                <p class="contacto">
-                    <i class="bi bi-person"></i> {{ a.contacto }}
-                </p>
-            </div>
+                <div class="info">
+                    <h2>{{ a.nombre }}</h2>
+                    @if (a.contacto) {
+                    <p class="contacto">
+                        <i class="bi bi-person"></i> {{ a.contacto }}
+                    </p>
+                    }
+                </div>
 
-            <div class="cifras">
-                <span class="cifra">
-                    <strong>{{ a.kgRecibidos }}</strong> kg
-                </span>
-                <span class="cifra">
-                    <strong>{{ a.numCajas }}</strong> cajas
-                </span>
-            </div>
+                <div class="cifras">
+                    <span class="cifra">
+                        <strong>{{ a.kgRecibidos }}</strong> kg
+                    </span>
+                    <span class="cifra">
+                        <strong>{{ a.numCajas }}</strong> cajas
+                    </span>
+                </div>
+
+                <i class="bi bi-chevron-right flecha" aria-hidden="true"></i>
+            </a>
         </li>
         } @empty {
         <p class="vacio">No hay asociaciones todavía.</p>
@@ -36,3 +50,9 @@
     <p class="vacio">Cargando…</p>
     }
 </main>
+
+@if (auth.isAdmin() && modalAbierto()) {
+<app-modal-entidad titulo="Registrar entidad" textoBoton="Registrar entidad" textoGuardando="Registrando…"
+    [asociaciones]="asociaciones() ?? []" [guardando]="guardando()" [errorExterno]="errorModal()"
+    (guardar)="registrar($event)" (cancelar)="cerrarModal()" />
+}

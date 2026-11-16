@@ -6,6 +6,13 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // Rol del usuario con sesión, leído de su documento en usuarios.
+    // get() dentro de las reglas no queda sujeto a las reglas de usuarios.
+    function esCoordinador() {
+      return haySesion()
+        && get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'coordinador';
+    }
+
     // Cada usuario lee solo su propio documento.
     // Nadie escribe desde la app: si no, un voluntario podría ponerse rol coordinador.
     // Los usuarios y sus roles se gestionan desde la consola de Firebase.
@@ -14,17 +21,103 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // Por ahora, cualquier usuario con sesión. Las reglas de cada slice las irán afinando.
+    // Todos leen, solo el coordinador escribe.
     match /categorias/{id} {
-      allow read, write: if haySesion();
+      allow read: if haySesion();
+      allow write: if esCoordinador();
     }
 
+    // Cualquiera con sesión puede crear una asociación (HU-10), con nombre obligatorio.
+    // Nace vacía (0 cajas, 0 kg) o con la caja que se asigna en ese mismo momento
+    // (1 caja y entre 0 y 30 kg). La unicidad (RN-05) la da el ID del documento.
+    // kgRecibidos y numCajas solo suben; un voluntario solo toca esos dos campos
+    // (al asignar una caja); el coordinador también puede editar el nombre y el contacto.
+    // Solo el coordinador puede borrar una asociación (B5).
     match /asociaciones/{id} {
-      allow read, write: if haySesion();
+      allow read: if haySesion();
+
+      allow create: if haySesion()
+                    && request.resource.data.nombre is string
+                    && request.resource.data.nombre.trim().size() > 0
+                    && request.resource.data.kgRecibidos is number
+                    && request.resource.data.numCajas is int
+                    && (
+                      (request.resource.data.numCajas == 0
+                        && request.resource.data.kgRecibidos == 0)
+                      || (request.resource.data.numCajas == 1
+                        && request.resource.data.kgRecibidos > 0
+                        && request.resource.data.kgRecibidos <= 30)
+                    );
+
+      allow update: if haySesion()
+                    && request.resource.data.kgRecibidos >= resource.data.kgRecibidos
+                    && request.resource.data.numCajas >= resource.data.numCajas
+                    && (
+                      request.resource.data.diff(resource.data).affectedKeys()
+                        .hasOnly(['kgRecibidos', 'numCajas'])
+                      || (esCoordinador()
+                          && request.resource.data.nombre is string
+                          && request.resource.data.nombre.trim().size() > 0)
+                    );
+
+      allow delete: if esCoordinador();
     }
 
-    //Permite la collecion nueva
+    // Un voluntario solo crea cajas a su nombre y solo modifica las suyas.
+    // Cada escritura permitida es una transición concreta; el resto se deniega,
+    // así una caja cerrada no admite más unidades (RN-03) ni una asignada cambia (RN-04).
+    // Única excepción: el coordinador puede devolver una caja asignada a cerrada,
+    // sin asociación, cuando borra la entidad a la que estaba asignada (B5).
     match /cajas/{id} {
+      allow read: if haySesion();
+
+      allow create: if haySesion()
+                    && request.resource.data.creadaPor == request.auth.uid
+                    && request.resource.data.estado == 'abierta'
+                    && request.resource.data.unidades == 1;
+
+      allow update: if haySesion()
+                    && (
+                      (
+                        resource.data.creadaPor == request.auth.uid
+                        && request.resource.data.creadaPor == resource.data.creadaPor
+                        && (
+                          // Llenar: sigue abierta y suma exactamente una unidad
+                          (resource.data.estado == 'abierta'
+                            && request.resource.data.estado == 'abierta'
+                            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['unidades'])
+                            && request.resource.data.unidades == resource.data.unidades + 1)
+                          // Cerrar: abierta -> cerrada, con unidades y peso válido (RN-06, EX-03, EX-04)
+                          || (resource.data.estado == 'abierta'
+                            && request.resource.data.estado == 'cerrada'
+                            && resource.data.unidades > 0
+                            && request.resource.data.pesoKg is number
+                            && request.resource.data.pesoKg > 0
+                            && request.resource.data.pesoKg <= 30
+                            && request.resource.data.diff(resource.data).affectedKeys()
+                                 .hasOnly(['estado', 'pesoKg', 'fechaCierre']))
+                          // Asignar: cerrada -> asignada, una sola vez (RN-04)
+                          || (resource.data.estado == 'cerrada'
+                            && request.resource.data.estado == 'asignada'
+                            && request.resource.data.diff(resource.data).affectedKeys()
+                                 .hasOnly(['estado', 'asociacionId']))
+                        )
+                      )
+                      // Desasignar (solo coordinador): asignada -> cerrada, sin asociación (B5)
+                      || (
+                        esCoordinador()
+                        && resource.data.estado == 'asignada'
+                        && request.resource.data.estado == 'cerrada'
+                        && request.resource.data.asociacionId == null
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                             .hasOnly(['estado', 'asociacionId'])
+                      )
+                    );
+
+      allow delete: if false;
+    }
+
+    match /contadores/{id} {
       allow read, write: if haySesion();
     }
 
