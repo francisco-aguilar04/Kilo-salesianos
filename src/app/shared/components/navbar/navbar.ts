@@ -18,7 +18,7 @@ const ITEMS_VOLUNTARIO: NavItem[] = [
 
 const ITEMS_COORDINADOR: NavItem[] = [
   { ruta: '/coordinador', etiqueta: 'Resumen', icono: 'bar-chart' },
-  { ruta: '/cajas', etiqueta: 'Bolsas', icono: 'box-seam' },
+  { ruta: '/cajas', etiqueta: 'Bolsas', icono: 'bag' },
   { ruta: '/escanear', etiqueta: 'Escanear', icono: 'camera', destacado: true },
   { ruta: '/asociaciones', etiqueta: 'Entidades', icono: 'people' },
   { ruta: '/perfil', etiqueta: 'Perfil', icono: 'person' },
