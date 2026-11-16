@@ -187,4 +187,18 @@ export class CajasService {
   sumarUnidad(cajaId: string): Promise<void> {
     return updateDoc(doc(this.firestore, 'cajas', cajaId), { unidades: increment(1) });
   }
+  async quitarUnidad(cajaId: string): Promise<void> {
+    const ref = doc(this.firestore, 'cajas', cajaId);
+    await runTransaction(this.firestore, async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists()) throw new Error('La bolsa no existe');
+      const caja = snap.data() as Caja;
+      if (caja.estado !== 'abierta') throw new Error('La bolsa no está abierta');
+      if ((caja.unidades ?? 0) > 0) {
+        tx.update(ref, { unidades: increment(-1) });
+      } else {
+        tx.delete(ref);
+      }
+    });
+  }
 }

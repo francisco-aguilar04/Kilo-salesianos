@@ -7,5 +7,8 @@
   <div class="contador" aria-live="polite">
     <span class="numero">{{ caja().unidades }}</span>
     <span class="texto">{{ caja().unidades === 1 ? 'unidad' : 'unidades' }}</span>
+    <button type="button" class="quitar" (click)="quitar.emit()">
+      {{ caja().unidades === 0 ? 'Eliminar bolsa' : 'QUITAR' }}
+    </button>
   </div>
 </section>

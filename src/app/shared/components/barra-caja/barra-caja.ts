@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
 import { Caja } from '../../../core/interfaces/caja';
 import { Categoria } from '../../../core/interfaces/categoria';
@@ -12,4 +12,5 @@ import { Categoria } from '../../../core/interfaces/categoria';
 export class BarraCaja {
   readonly caja = input.required<Caja>();
   readonly categoria = input<Categoria | null>(null);
+  quitar = output<void>();
 }
