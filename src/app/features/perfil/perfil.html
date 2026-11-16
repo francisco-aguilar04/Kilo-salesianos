@@ -77,13 +77,23 @@
         </form>
         }
         <ul class="usuarios__lista">
-            @for (u of usuarios(); track u.uid) {
+            @for (u of usuariosVisibles(); track u.uid) {
             <li class="usuario">
-                <div class="usuario__datos">
-                    <span class="usuario__nombre">{{ u.nombre }}</span>
-                    <span class="usuario__email">{{ u.email }}</span>
-                </div>
-                <span class="usuario__rol">{{ u.rol }}</span>
+                <button type="button" class="usuario__fila" [disabled]="!puedeEditar(u)" (click)="abrirEdicion(u)"
+                    [attr.aria-label]="puedeEditar(u) ? 'Editar ' + u.nombre : null">
+                    <div class="usuario__datos">
+                        <span class="usuario__nombre">{{ u.nombre }}</span>
+                        <span class="usuario__email">{{ u.email }}</span>
+                    </div>
+                    <span class="usuario__rol">{{ u.rol }}</span>
+                    @if (puedeEditar(u)) {
+                    <svg class="usuario__chevron" viewBox="0 0 24 24" width="20" height="20" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        aria-hidden="true">
+                        <path d="M9 6l6 6-6 6" />
+                    </svg>
+                    }
+                </button>
             </li>
             } @empty {
             <li class="usuario usuario--vacio">No hay usuarios todavía</li>
@@ -97,4 +107,38 @@
 @if (modalPasswordAbierto()) {
 <app-modal-password [guardando]="cambiandoPassword()" [errorActual]="errorActual()" [errorGeneral]="errorGeneral()"
     (guardar)="cambiarPassword($event)" (cancelar)="cerrarModalPassword()" />
+}
+
+@if (usuarioEditando(); as u) {
+<div class="modal-fondo" (click)="cerrarEdicion()">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-editar-titulo"
+        (click)="$event.stopPropagation()">
+        <h2 class="modal__titulo" id="modal-editar-titulo">Editar usuario</h2>
+        <p class="modal__email">{{ u.email }}</p>
+
+        <form class="form-usuario" (submit)="$event.preventDefault(); guardarEdicion(u)">
+            <label class="campo">
+                <span>Nombre</span>
+                <input type="text" [value]="editNombre()" (input)="editNombre.set($any($event.target).value)" />
+            </label>
+            <label class="campo">
+                <span>Rol</span>
+                <select (change)="editRol.set($any($event.target).value)">
+                    <option [value]="ROLES.VOLUNTARIO" [selected]="editRol() === ROLES.VOLUNTARIO">Voluntario</option>
+                    <option [value]="ROLES.COORDINADOR" [selected]="editRol() === ROLES.COORDINADOR">Coordinador
+                    </option>
+                </select>
+            </label>
+            @if (errorEditar()) {
+            <p class="error-form">{{ errorEditar() }}</p>
+            }
+            <div class="form-usuario__acciones">
+                <button type="button" class="btn-secundario" [disabled]="guardandoEdicion()"
+                    (click)="cerrarEdicion()">Cancelar</button>
+                <button type="submit" class="btn-primario"
+                    [disabled]="!editValido() || guardandoEdicion()">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
 }

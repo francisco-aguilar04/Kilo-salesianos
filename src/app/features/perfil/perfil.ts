@@ -6,7 +6,12 @@ import { switchMap } from 'rxjs/operators';
 import { Auth, CambioPasswordError } from '../../core/services/auth';
 import { ROLES, Rol } from '../../core/constants/roles';
 import { ResumenDiaService } from '../../core/services/resumen-dia-service';
-import { CrearUsuarioError, UsuariosService } from '../../core/services/usuarios-service';
+import {
+  ActualizarUsuarioError,
+  CrearUsuarioError,
+  EMAIL_PROTEGIDO,
+  UsuariosService,
+} from '../../core/services/usuarios-service';
 import { Usuario } from '../../core/interfaces/usuario';
 import { DatosPassword, ModalPassword } from '../../shared/components/modal-password/modal-password';
 
@@ -111,6 +116,74 @@ export class PerfilComponent {
       }
     } finally {
       this.creandoUsuario.set(false);
+    }
+  }
+
+  // ---- Editar usuario (modal) ----
+  protected readonly usuarioEditando = signal<Usuario | null>(null);
+  protected readonly editNombre = signal('');
+  protected readonly editRol = signal<Rol>(ROLES.VOLUNTARIO);
+  protected readonly guardandoEdicion = signal(false);
+  protected readonly errorEditar = signal<string | null>(null);
+
+  protected readonly editValido = computed(() => this.editNombre().trim().length > 0);
+
+  // Lista visible: sin el usuario con sesión ni el usuario protegido.
+  protected readonly usuariosVisibles = computed(() => {
+    const uidActual = this.usuario()?.uid;
+    return this.usuarios().filter(
+      (u) => u.uid !== uidActual && u.email.toLowerCase() !== EMAIL_PROTEGIDO,
+    );
+  });
+
+  // No se puede editar a uno mismo ni al usuario protegido.
+  protected puedeEditar(u: Usuario): boolean {
+    return u.uid !== this.usuario()?.uid && u.email.toLowerCase() !== EMAIL_PROTEGIDO;
+  }
+
+  protected abrirEdicion(u: Usuario): void {
+    if (!this.puedeEditar(u)) return;
+    this.errorEditar.set(null);
+    this.usuarioCreado.set(null);
+    this.editNombre.set(u.nombre);
+    this.editRol.set(u.rol);
+    this.usuarioEditando.set(u);
+  }
+
+  protected cerrarEdicion(): void {
+    if (this.guardandoEdicion()) return;
+    this.usuarioEditando.set(null);
+    this.errorEditar.set(null);
+  }
+
+  protected async guardarEdicion(u: Usuario): Promise<void> {
+    const uidActual = this.usuario()?.uid;
+    if (!uidActual || !this.editValido() || this.guardandoEdicion()) return;
+
+    this.errorEditar.set(null);
+    this.guardandoEdicion.set(true);
+    const nombre = this.editNombre().trim();
+    try {
+      await this.usuariosService.actualizarUsuario(u, uidActual, {
+        nombre,
+        rol: this.editRol(),
+      });
+      this.usuarioEditando.set(null);
+      this.usuarioCreado.set(`Usuario ${nombre} actualizado correctamente`);
+    } catch (e) {
+      const motivo = e instanceof ActualizarUsuarioError ? e.motivo : 'desconocido';
+      switch (motivo) {
+        case 'protegido':
+          this.errorEditar.set('Este usuario no se puede modificar');
+          break;
+        case 'sin-conexion':
+          this.errorEditar.set('Sin conexión. Comprueba tu internet e inténtalo de nuevo');
+          break;
+        default:
+          this.errorEditar.set('No se ha podido guardar. Inténtalo de nuevo');
+      }
+    } finally {
+      this.guardandoEdicion.set(false);
     }
   }
 

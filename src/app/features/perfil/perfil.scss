@@ -129,18 +129,57 @@
 }
 
 .usuario {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    padding: 0.85rem 1rem;
+    overflow: hidden; // para que el hover respete las esquinas redondeadas
     border: 1px solid #e5e5e5;
     border-radius: 1rem;
     background: #fff;
 }
 
+.usuario__fila {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+
+    &:not(:disabled) {
+        cursor: pointer;
+
+        &:hover,
+        &:focus-visible {
+            background: #fdeaea;
+            outline: none;
+        }
+    }
+
+    &:disabled {
+        color: inherit; // evita el gris por defecto de los botones deshabilitados
+    }
+}
+
+.usuario__chevron {
+    flex-shrink: 0;
+    color: #999;
+
+    .usuario__fila:hover & {
+        color: #e32124;
+    }
+}
+
+.usuario--vacio {
+    padding: 0.85rem 1rem;
+    color: #666;
+    text-align: center;
+}
+
 .usuario__datos {
     display: flex;
+    flex: 1;
     flex-direction: column;
     min-width: 0;
 }
@@ -166,11 +205,6 @@
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: capitalize;
-}
-
-.usuario--vacio {
-    justify-content: center;
-    color: #666;
 }
 
 // Botón "+ Nuevo usuario"
@@ -437,8 +471,12 @@
     }
 
     .usuario {
-        padding: 1.1rem 1.5rem;
         border-radius: 1.25rem;
+    }
+
+    .usuario__fila,
+    .usuario--vacio {
+        padding: 1.1rem 1.5rem;
     }
 
     .usuario__nombre {
@@ -533,4 +571,53 @@
     color: #b71c1c;
     font-size: 0.9rem;
     font-weight: 600;
+}
+
+// Modal de edición de usuario
+.modal-fondo {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.modal {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 26rem;
+    padding: 1.5rem 1.25rem;
+    border-radius: 1.25rem;
+    background: #fff;
+
+    // El formulario ya no es una tarjeta: va directo sobre el modal, en una columna
+    .form-usuario {
+        display: flex;
+        flex-direction: column;
+        gap: 0.9rem;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+    }
+
+    .btn-primario,
+    .btn-secundario {
+        flex: 1;
+        padding: 0.85rem 1rem;
+    }
+}
+
+.modal__titulo {
+    margin: 0 0 0.25rem;
+    font-size: 1.25rem;
+}
+
+.modal__email {
+    margin: 0 0 1.25rem;
+    font-size: 0.9rem;
+    color: #666;
 }

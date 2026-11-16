@@ -9,6 +9,7 @@ import {
     orderBy,
     query,
     setDoc,
+    updateDoc
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -27,6 +28,17 @@ export class CrearUsuarioError extends Error {
     constructor(readonly motivo: MotivoCrearUsuario) {
         super(`No se ha podido crear el usuario: ${motivo}`);
         this.name = 'CrearUsuarioError';
+    }
+}
+
+export const EMAIL_PROTEGIDO = 'admin@admin.com';
+
+export type MotivoActualizarUsuario = 'protegido' | 'sin-conexion' | 'desconocido';
+
+export class ActualizarUsuarioError extends Error {
+    constructor(readonly motivo: MotivoActualizarUsuario) {
+        super(`No se ha podido actualizar el usuario: ${motivo}`);
+        this.name = 'ActualizarUsuarioError';
     }
 }
 
@@ -95,6 +107,30 @@ export class UsuariosService {
         } finally {
             // La sesión de la instancia secundaria no se necesita más.
             await signOut(authSecundaria);
+        }
+    }
+
+    /** Actualiza nombre y rol. No permite editarse a uno mismo ni al usuario protegido. */
+    async actualizarUsuario(
+        objetivo: Usuario,
+        uidActual: string,
+        cambios: { nombre: string; rol: Rol },
+    ): Promise<void> {
+        if (objetivo.uid === uidActual || objetivo.email.toLowerCase() === EMAIL_PROTEGIDO) {
+            throw new ActualizarUsuarioError('protegido');
+        }
+        try {
+            await runInInjectionContext(this.injector, () =>
+                updateDoc(doc(this.firestore, 'usuarios', objetivo.uid), {
+                    nombre: cambios.nombre.trim(),
+                    rol: cambios.rol,
+                }),
+            );
+        } catch (e) {
+            console.error(e);
+            throw new ActualizarUsuarioError(
+                (e as { code?: string })?.code === 'unavailable' ? 'sin-conexion' : 'desconocido',
+            );
         }
     }
 }
