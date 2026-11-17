@@ -92,6 +92,31 @@ export class MisCajasComponent {
       : null;
   }
 
+  // ---- A4: quitar asociación ----
+  protected async quitarAsociacion(caja: Caja): Promise<void> {
+    const nombre = this.nombreAsociacionDe(caja) ?? 'la entidad';
+    if (
+      !confirm(`¿Quitar ${caja.codigo} de ${nombre}? La bolsa volverá a "Cerrada, falta asignar".`)
+    )
+      return;
+
+    try {
+      await this.cajasService.quitarAsociacion(caja.id);
+      this.mostrarAviso({
+        tipo: 'exito',
+        titulo: 'Asociación quitada',
+        mensaje: `${caja.codigo} vuelve a estar sin asignar`,
+      });
+    } catch (e) {
+      console.error(e);
+      this.mostrarAviso({
+        tipo: 'error',
+        titulo: 'No se ha podido quitar la asociación',
+        mensaje: 'Inténtalo de nuevo',
+      });
+    }
+  }
+
   protected abrirAsignacion(caja: Caja): void {
     this.cajaPorAsignar.set(caja);
   }

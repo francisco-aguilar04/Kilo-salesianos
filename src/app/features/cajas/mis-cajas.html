@@ -64,7 +64,11 @@
           [caja]="caja"
           [categoria]="categoriaDe(caja)"
           [asociacion]="nombreAsociacionDe(caja)"
-        />
+        >
+          <button type="button" class="accion-tarjeta" (click)="quitarAsociacion(caja)">
+            <i class="bi bi-x-circle"></i> Quitar asociación
+          </button>
+        </app-tarjeta-caja>
       }
     </section>
   }

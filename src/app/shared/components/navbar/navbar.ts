@@ -11,7 +11,7 @@ interface NavItem {
 }
 
 const ITEMS_VOLUNTARIO: NavItem[] = [
-  { ruta: '/bolsas', etiqueta: 'Mis bolsas', icono: 'box-seam' },
+  { ruta: '/cajas', etiqueta: 'Mis bolsas', icono: 'bag x' },
   { ruta: '/escanear', etiqueta: 'Escanear', icono: 'camera', destacado: true },
   { ruta: '/perfil', etiqueta: 'Perfil', icono: 'person' },
 ];

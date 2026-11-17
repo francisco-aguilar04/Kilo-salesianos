@@ -219,4 +219,31 @@ export class CajasService {
       }),
     );
   }
+  /** A4: quita la entidad de una bolsa asignada. La bolsa NO se borra: vuelve a Cerrada
+   *  sin asociación, y la entidad resta sus kg y una bolsa. Todo en una transacción. */
+  async quitarAsociacion(cajaId: string): Promise<void> {
+    return runInInjectionContext(this.injector, () =>
+      runTransaction(this.firestore, async (tx) => {
+        const refCaja = doc(this.firestore, 'cajas', cajaId);
+        const snapCaja = await tx.get(refCaja);
+        if (!snapCaja.exists()) throw new Error('La bolsa no existe');
+
+        const caja = snapCaja.data() as Caja;
+        if (caja.estado !== ESTADOS_CAJA.ASIGNADA || !caja.asociacionId)
+          throw new Error(`La bolsa ${caja.codigo} no está asignada`);
+
+        const refAsociacion = doc(this.firestore, 'asociaciones', caja.asociacionId);
+        const snapAsociacion = await tx.get(refAsociacion);
+
+        tx.update(refCaja, { estado: ESTADOS_CAJA.CERRADA, asociacionId: null });
+        // Si la entidad ya no existe (la borró el admin), no hay nada que restar
+        if (snapAsociacion.exists()) {
+          tx.update(refAsociacion, {
+            kgRecibidos: increment(-(caja.pesoKg ?? 0)),
+            numCajas: increment(-1),
+          });
+        }
+      }),
+    );
+  }
 }
