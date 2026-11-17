@@ -7,18 +7,30 @@ service cloud.firestore {
     }
 
     // Rol del usuario con sesión, leído de su documento en usuarios.
-    // get() dentro de las reglas no queda sujeto a las reglas de usuarios.
     function esCoordinador() {
-      return haySesion()
-        && get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'coordinador';
+      return request.auth != null &&
+        get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'coordinador';
     }
 
-    // Cada usuario lee solo su propio documento.
-    // Nadie escribe desde la app: si no, un voluntario podría ponerse rol coordinador.
-    // Los usuarios y sus roles se gestionan desde la consola de Firebase.
+    // Gestión de usuarios: cada usuario lee el suyo; el coordinador puede leer y gestionar todos.
     match /usuarios/{uid} {
-      allow read: if haySesion() && request.auth.uid == uid;
-      allow write: if false;
+      allow read: if request.auth != null && (request.auth.uid == uid || esCoordinador());
+      allow create: if esCoordinador();
+
+      // Editar: solo nombre y rol, nunca el propio documento ni el usuario protegido.
+      allow update: if esCoordinador()
+                    && request.auth.uid != uid
+                    && resource.data.email.lower() != 'admin@admin.com'
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['nombre', 'rol'])
+                    && request.resource.data.nombre is string
+                    && request.resource.data.nombre.trim().size() > 0
+                    && request.resource.data.rol in ['voluntario', 'coordinador'];
+
+      // Borrar: nunca a uno mismo ni al usuario protegido.
+      allow delete: if esCoordinador()
+                    && request.auth.uid != uid
+                    && resource.data.email.lower() != 'admin@admin.com';
     }
 
     // Todos leen, solo el coordinador escribe.
@@ -28,11 +40,6 @@ service cloud.firestore {
     }
 
     // Cualquiera con sesión puede crear una asociación (HU-10), con nombre obligatorio.
-    // Nace vacía (0 cajas, 0 kg) o con la caja que se asigna en ese mismo momento
-    // (1 caja y entre 0 y 30 kg). La unicidad (RN-05) la da el ID del documento.
-    // kgRecibidos y numCajas solo suben; un voluntario solo toca esos dos campos
-    // (al asignar una caja); el coordinador también puede editar el nombre y el contacto.
-    // Solo el coordinador puede borrar una asociación (B5).
     match /asociaciones/{id} {
       allow read: if haySesion();
 
@@ -64,10 +71,6 @@ service cloud.firestore {
     }
 
     // Un voluntario solo crea cajas a su nombre y solo modifica las suyas.
-    // Cada escritura permitida es una transición concreta; el resto se deniega,
-    // así una caja cerrada no admite más unidades (RN-03) ni una asignada cambia (RN-04).
-    // Única excepción: el coordinador puede devolver una caja asignada a cerrada,
-    // sin asociación, cuando borra la entidad a la que estaba asignada (B5).
     match /cajas/{id} {
       allow read: if haySesion();
 
@@ -87,7 +90,13 @@ service cloud.firestore {
                             && request.resource.data.estado == 'abierta'
                             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['unidades'])
                             && request.resource.data.unidades == resource.data.unidades + 1)
-                          // Cerrar: abierta -> cerrada, con unidades y peso válido (RN-06, EX-03, EX-04)
+                          // Quitar: sigue abierta y resta exactamente una unidad (A2)
+                          || (resource.data.estado == 'abierta'
+                            && request.resource.data.estado == 'abierta'
+                            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['unidades'])
+                            && resource.data.unidades > 0
+                            && request.resource.data.unidades == resource.data.unidades - 1)
+                          // Cerrar: abierta -> cerrada, con unidades y peso válido
                           || (resource.data.estado == 'abierta'
                             && request.resource.data.estado == 'cerrada'
                             && resource.data.unidades > 0
@@ -96,14 +105,14 @@ service cloud.firestore {
                             && request.resource.data.pesoKg <= 30
                             && request.resource.data.diff(resource.data).affectedKeys()
                                  .hasOnly(['estado', 'pesoKg', 'fechaCierre']))
-                          // Asignar: cerrada -> asignada, una sola vez (RN-04)
+                          // Asignar: cerrada -> asignada, una sola vez
                           || (resource.data.estado == 'cerrada'
                             && request.resource.data.estado == 'asignada'
                             && request.resource.data.diff(resource.data).affectedKeys()
                                  .hasOnly(['estado', 'asociacionId']))
                         )
                       )
-                      // Desasignar (solo coordinador): asignada -> cerrada, sin asociación (B5)
+                      // Desasignar (solo coordinador): asignada -> cerrada, sin asociación
                       || (
                         esCoordinador()
                         && resource.data.estado == 'asignada'
@@ -114,7 +123,11 @@ service cloud.firestore {
                       )
                     );
 
-      allow delete: if false;
+      // Borrar: solo el creador, con la bolsa abierta y vacía (A2)
+      allow delete: if haySesion()
+                    && resource.data.creadaPor == request.auth.uid
+                    && resource.data.estado == 'abierta'
+                    && resource.data.unidades == 0;
     }
 
     match /contadores/{id} {

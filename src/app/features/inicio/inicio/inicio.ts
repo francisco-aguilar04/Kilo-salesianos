@@ -294,4 +294,19 @@ export class InicioComponent {
       this.asignandoCaja.set(false);
     }
   }
+
+  async quitarUnidad() {
+    const caja = this.cajaAbierta();
+    if (!caja) return;
+    try {
+      await this.cajas.quitarUnidad(caja.id);
+    } catch (e) {
+      console.error(e);
+      this.mostrarAviso({
+        tipo: 'error',
+        titulo: 'No se ha podido restar',
+        mensaje: (e as Error).message,
+      });
+    }
+  }
 }

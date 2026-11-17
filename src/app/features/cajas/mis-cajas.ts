@@ -87,7 +87,9 @@ export class MisCajasComponent {
   }
 
   protected nombreAsociacionDe(caja: Caja): string | null {
-    return caja.asociacionId ? (this.asociacionPorId().get(caja.asociacionId)?.nombre ?? null) : null;
+    return caja.asociacionId
+      ? (this.asociacionPorId().get(caja.asociacionId)?.nombre ?? null)
+      : null;
   }
 
   protected abrirAsignacion(caja: Caja): void {
@@ -167,5 +169,36 @@ export class MisCajasComponent {
 
   private filtrar(estado: EstadoCaja): Caja[] {
     return (this.cajas() ?? []).filter((caja) => caja.estado === estado);
+  }
+
+  protected readonly reabriendo = signal(false);
+
+  protected async reabrir(caja: Caja): Promise<void> {
+    if (this.abiertas().length > 0) {
+      this.mostrarAviso({
+        tipo: 'aviso',
+        titulo: 'Ya tienes una bolsa abierta',
+        mensaje: 'Ciérrala antes de reabrir otra',
+      });
+      return;
+    }
+    this.reabriendo.set(true);
+    try {
+      await this.cajasService.reabrirCaja(caja);
+      this.mostrarAviso({
+        tipo: 'exito',
+        titulo: 'Bolsa reabierta',
+        mensaje: `${caja.codigo}: ya puedes seguir añadiendo`,
+      });
+    } catch (e) {
+      console.error(e);
+      this.mostrarAviso({
+        tipo: 'error',
+        titulo: 'No se ha podido reabrir',
+        mensaje: 'Inténtalo de nuevo',
+      });
+    } finally {
+      this.reabriendo.set(false);
+    }
   }
 }

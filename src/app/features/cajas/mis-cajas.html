@@ -1,48 +1,71 @@
 @if (cajaPorAsignar(); as caja) {
-<app-hoja-asignar-caja [caja]="caja" [asociaciones]="asociaciones()" [guardando]="asignandoCaja()"
-    (asignar)="confirmarAsignacion($event)" (cancelar)="cancelarAsignacion()"
-    (crearNueva)="confirmarNuevaAsociacion($event)" />
+  <app-hoja-asignar-caja
+    [caja]="caja"
+    [asociaciones]="asociaciones()"
+    [guardando]="asignandoCaja()"
+    (asignar)="confirmarAsignacion($event)"
+    (cancelar)="cancelarAsignacion()"
+    (crearNueva)="confirmarNuevaAsociacion($event)"
+  />
 }
 
 @if (aviso(); as a) {
-<app-aviso class="aviso-flotante" [tipo]="a.tipo" [titulo]="a.titulo" [mensaje]="a.mensaje" />
+  <app-aviso class="aviso-flotante" [tipo]="a.tipo" [titulo]="a.titulo" [mensaje]="a.mensaje" />
 }
 
 <main class="mis-cajas">
-    <header class="cabecera">
-        <h1>Mis bolsas</h1>
-        <p class="fecha">Hoy, {{ fechaHoy }}</p>
-    </header>
+  <header class="cabecera">
+    <h1>Mis bolsas</h1>
+    <p class="fecha">Hoy, {{ fechaHoy }}</p>
+  </header>
 
-    @if (cajas() !== null && total() === 0) {
+  @if (cajas() !== null && total() === 0) {
     <p class="vacio">Aún no tienes bolsas. Escanea un alimento para abrir una.</p>
-    }
+  }
 
-    @if (abiertas().length > 0) {
+  @if (abiertas().length > 0) {
     <section class="grupo">
-        <h2 class="grupo__titulo">Abierta</h2>
-        @for (caja of abiertas(); track caja.id) {
+      <h2 class="grupo__titulo">Abierta</h2>
+      @for (caja of abiertas(); track caja.id) {
         <app-tarjeta-caja [caja]="caja" [categoria]="categoriaDe(caja)" />
-        }
+      }
     </section>
-    }
+  }
 
-    @if (cerradas().length > 0) {
+  @if (cerradas().length > 0) {
     <section class="grupo">
-        <h2 class="grupo__titulo">Cerrada, falta asignar</h2>
-        @for (caja of cerradas(); track caja.id) {
-        <app-tarjeta-caja [caja]="caja" [categoria]="categoriaDe(caja)" [interactiva]="true"
-            (seleccionada)="abrirAsignacion($event)" />
-        }
+      <h2 class="grupo__titulo">Cerrada, falta asignar</h2>
+      @for (caja of cerradas(); track caja.id) {
+        <div class="cerrada">
+          <app-tarjeta-caja
+            [caja]="caja"
+            [categoria]="categoriaDe(caja)"
+            [interactiva]="true"
+            (seleccionada)="abrirAsignacion($event)"
+          />
+          <button
+            type="button"
+            class="boton-reabrir"
+            [disabled]="reabriendo()"
+            (click)="reabrir(caja)"
+          >
+            Reabrir
+          </button>
+        </div>
+      }
     </section>
-    }
+  }
 
-    @if (asignadas().length > 0) {
+  @if (asignadas().length > 0) {
     <section class="grupo">
-        <h2 class="grupo__titulo">Asignadas</h2>
-        @for (caja of asignadas(); track caja.id) {
-        <app-tarjeta-caja [caja]="caja" [categoria]="categoriaDe(caja)" [asociacion]="nombreAsociacionDe(caja)" />
-        }
+      <h2 class="grupo__titulo">Asignadas</h2>
+      @for (caja of asignadas(); track caja.id) {
+        <app-tarjeta-caja
+          [caja]="caja"
+          [categoria]="categoriaDe(caja)"
+          [asociacion]="nombreAsociacionDe(caja)"
+        />
+      }
     </section>
-    }
+  }
 </main>

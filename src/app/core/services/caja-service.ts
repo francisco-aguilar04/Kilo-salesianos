@@ -187,4 +187,36 @@ export class CajasService {
   sumarUnidad(cajaId: string): Promise<void> {
     return updateDoc(doc(this.firestore, 'cajas', cajaId), { unidades: increment(1) });
   }
+  async quitarUnidad(cajaId: string): Promise<void> {
+    const ref = doc(this.firestore, 'cajas', cajaId);
+    await runTransaction(this.firestore, async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists()) throw new Error('La bolsa no existe');
+      const caja = snap.data() as Caja;
+      if (caja.estado !== 'abierta') throw new Error('La bolsa no está abierta');
+      if ((caja.unidades ?? 0) > 0) {
+        tx.update(ref, { unidades: increment(-1) });
+      } else {
+        tx.delete(ref);
+      }
+    });
+  }
+
+  /** A3: reabre una bolsa cerrada para seguir añadiendo. Borra peso y fecha de cierre. */
+  async reabrirCaja(caja: Caja): Promise<void> {
+    const abierta = await firstValueFrom(this.obtenerCajaAbierta(caja.creadaPor));
+    if (abierta) throw new Error(`Ya tienes abierta la bolsa ${abierta.codigo}`);
+
+    return runInInjectionContext(this.injector, () =>
+      runTransaction(this.firestore, async (tx) => {
+        const ref = doc(this.firestore, 'cajas', caja.id);
+        const snap = await tx.get(ref);
+        if (!snap.exists()) throw new Error('La bolsa no existe');
+        if ((snap.data() as Caja).estado !== ESTADOS_CAJA.CERRADA)
+          throw new Error(`La bolsa ${caja.codigo} ya no está cerrada`);
+
+        tx.update(ref, { estado: ESTADOS_CAJA.ABIERTA, pesoKg: null, fechaCierre: null });
+      }),
+    );
+  }
 }
