@@ -82,3 +82,29 @@
   background: none;
   font-size: 0.8rem;
 }
+.accion-tarjeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.6rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: none;
+  color: #e32124;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: #fde8e8;
+  }
+}
+// A5: cambiar no borra nada, así que va en azul y no en rojo
+.accion-tarjeta--cambiar {
+  color: #1a56db;
+
+  &:hover {
+    background: #e8f0fe;
+  }
+}

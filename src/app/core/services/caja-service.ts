@@ -219,4 +219,63 @@ export class CajasService {
       }),
     );
   }
+  /** A4: quita la entidad de una bolsa asignada. La bolsa NO se borra: vuelve a Cerrada
+   *  sin asociación, y la entidad resta sus kg y una bolsa. Todo en una transacción. */
+  async quitarAsociacion(cajaId: string): Promise<void> {
+    return runInInjectionContext(this.injector, () =>
+      runTransaction(this.firestore, async (tx) => {
+        const refCaja = doc(this.firestore, 'cajas', cajaId);
+        const snapCaja = await tx.get(refCaja);
+        if (!snapCaja.exists()) throw new Error('La bolsa no existe');
+
+        const caja = snapCaja.data() as Caja;
+        if (caja.estado !== ESTADOS_CAJA.ASIGNADA || !caja.asociacionId)
+          throw new Error(`La bolsa ${caja.codigo} no está asignada`);
+
+        const refAsociacion = doc(this.firestore, 'asociaciones', caja.asociacionId);
+        const snapAsociacion = await tx.get(refAsociacion);
+
+        tx.update(refCaja, { estado: ESTADOS_CAJA.CERRADA, asociacionId: null });
+        // Si la entidad ya no existe (la borró el admin), no hay nada que restar
+        if (snapAsociacion.exists()) {
+          tx.update(refAsociacion, {
+            kgRecibidos: increment(-(caja.pesoKg ?? 0)),
+            numCajas: increment(-1),
+          });
+        }
+      }),
+    );
+  }
+  /** A5: cambia la entidad de una bolsa asignada sin borrar nada. La bolsa sigue Asignada;
+   *  la entidad vieja resta sus kg y una bolsa, y la nueva los suma. Todo en una transacción. */
+  async cambiarAsociacion(cajaId: string, nuevaId: string): Promise<void> {
+    return runInInjectionContext(this.injector, () =>
+      runTransaction(this.firestore, async (tx) => {
+        const refCaja = doc(this.firestore, 'cajas', cajaId);
+        const snapCaja = await tx.get(refCaja);
+        if (!snapCaja.exists()) throw new Error('La bolsa no existe');
+
+        const caja = snapCaja.data() as Caja;
+        if (caja.estado !== ESTADOS_CAJA.ASIGNADA || !caja.asociacionId)
+          throw new Error(`La bolsa ${caja.codigo} no está asignada`);
+        // Evitar duplicados: si fuera la misma, sumaría y restaría en la misma entidad
+        if (caja.asociacionId === nuevaId)
+          throw new Error(`La bolsa ${caja.codigo} ya está en esa entidad`);
+
+        // Todas las lecturas antes de cualquier escritura (regla de las transacciones)
+        const refVieja = doc(this.firestore, 'asociaciones', caja.asociacionId);
+        const refNueva = doc(this.firestore, 'asociaciones', nuevaId);
+        const snapVieja = await tx.get(refVieja);
+        const snapNueva = await tx.get(refNueva);
+        if (!snapNueva.exists()) throw new Error('La entidad nueva no existe');
+
+        const kg = caja.pesoKg ?? 0;
+        tx.update(refCaja, { asociacionId: nuevaId });
+        if (snapVieja.exists()) {
+          tx.update(refVieja, { kgRecibidos: increment(-kg), numCajas: increment(-1) });
+        }
+        tx.update(refNueva, { kgRecibidos: increment(kg), numCajas: increment(1) });
+      }),
+    );
+  }
 }
