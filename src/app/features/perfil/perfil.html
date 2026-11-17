@@ -76,6 +76,8 @@
             </div>
         </form>
         }
+        <input type="search" class="buscador" placeholder="Buscar por nombre o email" [value]="busqueda()"
+            (input)="buscar($any($event.target).value)" />
         <ul class="usuarios__lista">
             @for (u of usuariosVisibles(); track u.uid) {
             <li class="usuario" [class.usuario--baja]="u.activo === false">
@@ -100,7 +102,9 @@
                 </button>
             </li>
             } @empty {
-            <li class="usuario usuario--vacio">No hay usuarios todavía</li>
+            <li class="usuario usuario--vacio">
+                {{ busqueda().trim() ? 'Ningún usuario coincide con la búsqueda' : 'No hay usuarios todavía' }}
+            </li>
             }
         </ul>
     </section>
