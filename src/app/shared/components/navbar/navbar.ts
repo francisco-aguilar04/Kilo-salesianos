@@ -11,7 +11,7 @@ interface NavItem {
 }
 
 const ITEMS_VOLUNTARIO: NavItem[] = [
-  { ruta: '/cajas', etiqueta: 'Mis bolsas', icono: 'bag x' },
+  { ruta: '/cajas', etiqueta: 'Mis bolsas', icono: 'bag' },
   { ruta: '/escanear', etiqueta: 'Escanear', icono: 'camera', destacado: true },
   { ruta: '/perfil', etiqueta: 'Perfil', icono: 'person' },
 ];
@@ -21,7 +21,7 @@ const ITEMS_COORDINADOR: NavItem[] = [
   { ruta: '/cajas', etiqueta: 'Bolsas', icono: 'bag' },
   { ruta: '/escanear', etiqueta: 'Escanear', icono: 'camera', destacado: true },
   { ruta: '/asociaciones', etiqueta: 'Entidades', icono: 'people' },
-  { ruta: '/perfil', etiqueta: 'Perfil', icono: 'person' },
+  { ruta: '/perfil', etiqueta: 'Usuarios', icono: 'person' },
 ];
 
 @Component({
