@@ -10,8 +10,13 @@
     <span class="textos">
       <span class="codigo">{{ caja().codigo }}</span>
       <span class="detalle">{{ detalle() }}</span>
-      @if (asociacion(); as nombre) {
-        <p class="asociacion"><i class="bi bi-box-arrow-right"></i> {{ nombre }}</p>
+      @if (creador() !== undefined) {
+        <span class="creador"><i class="bi bi-person"></i> {{ creador() | eliminado }}</span>
+      }
+      @if (asociacion() !== undefined) {
+        <p class="asociacion">
+          <i class="bi bi-box-arrow-right"></i> {{ asociacion() | eliminado }}
+        </p>
       }
     </span>
     <span class="estado" [class]="'estado estado--' + caja().estado">{{ estadoTexto() }}</span>

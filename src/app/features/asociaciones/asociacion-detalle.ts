@@ -15,11 +15,20 @@ import { DatosEntidad, ModalEntidad } from '../../shared/components/modal-entida
 import { ModalConfirmar } from '../../shared/components/modal-confirmar/modal-confirmar';
 import { Aviso, TipoAviso } from '../../shared/components/aviso/aviso';
 import { HojaAsignarCaja } from '../hoja-asignar-caja/hoja-asignar-caja';
+import { EliminadoPipe } from '../../shared/pipes/eliminado-pipe/eliminado-pipe';
 
 @Component({
   selector: 'app-asociacion-detalle',
   standalone: true,
-  imports: [RouterLink, TitleCasePipe, ModalEntidad, ModalConfirmar, Aviso, HojaAsignarCaja],
+  imports: [
+    RouterLink,
+    TitleCasePipe,
+    ModalEntidad,
+    ModalConfirmar,
+    Aviso,
+    HojaAsignarCaja,
+    EliminadoPipe,
+  ],
   templateUrl: './asociacion-detalle.html',
   styleUrl: './asociacion-detalle.scss',
 })
@@ -75,8 +84,10 @@ export class AsociacionDetalleComponent {
     (this.cajas() ?? []).reduce((suma, c) => suma + (c.pesoKg ?? 0), 0),
   );
 
-  protected categoriaDe(caja: Caja): Categoria | undefined {
-    return this.categoriaPorId().get(caja.categoriaId);
+  /** A11: null = categoría borrada ("Eliminado"); undefined = aún cargando. */
+  protected nombreCategoriaDe(caja: Caja): string | null | undefined {
+    if (caja.categoriaId === null) return null;
+    return this.categoriaPorId().get(caja.categoriaId)?.nombre;
   }
 
   // ---- B4: editar entidad en el modal compartido (solo admin) ----

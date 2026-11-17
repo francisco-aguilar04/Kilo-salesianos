@@ -2,51 +2,62 @@ import { Component, computed, input, output } from '@angular/core';
 import { ESTADOS_CAJA } from '../../../core/constants/estados-caja';
 import { Caja } from '../../../core/interfaces/caja';
 import { Categoria } from '../../../core/interfaces/categoria';
+import { EliminadoPipe, textoOEliminado } from '../../pipes/eliminado-pipe/eliminado-pipe';
 
 @Component({
-    selector: 'app-tarjeta-caja',
-    standalone: true,
-    templateUrl: './tarjeta-caja.html',
-    styleUrl: './tarjeta-caja.scss',
+  selector: 'app-tarjeta-caja',
+  standalone: true,
+  imports: [EliminadoPipe],
+  templateUrl: './tarjeta-caja.html',
+  styleUrl: './tarjeta-caja.scss',
 })
 export class TarjetaCaja {
-    readonly caja = input.required<Caja>();
-    readonly categoria = input<Categoria | undefined>();
-    readonly asociacion = input<string | null>(null);
-    readonly interactiva = input(false); // solo las cajas cerradas sin asignar se pueden tocar
-    readonly seleccionada = output<Caja>();
+  readonly caja = input.required<Caja>();
+  readonly categoria = input<Categoria | undefined>();
+  // A11: undefined = no se muestra; null = la entidad ya no existe ("Eliminado")
+  readonly asociacion = input<string | null | undefined>(undefined);
+  // A9: quién creó la bolsa. undefined = no se muestra; null = usuario borrado ("Eliminado")
+  readonly creador = input<string | null | undefined>(undefined);
+  readonly interactiva = input(false); // solo las cajas cerradas sin asignar se pueden tocar
+  readonly seleccionada = output<Caja>();
 
-    // "LG" de "LG-014"
-    protected readonly prefijo = computed(() => this.caja().codigo.split('-')[0]);
+  // "LG" de "LG-014"
+  protected readonly prefijo = computed(() => this.caja().codigo.split('-')[0]);
 
-    protected readonly color = computed(() => this.categoria()?.color ?? '#666666');
+  protected readonly color = computed(() => this.categoria()?.color ?? '#666666');
 
-    protected readonly detalle = computed(() => {
-        const caja: Caja = this.caja();
-        const nombre: string = this.categoria()?.nombre ?? '';
-        const partes: string[] = [];
+  protected readonly detalle = computed(() => {
+    const caja: Caja = this.caja();
+    // A11: categoriaId null = categoría borrada → "Eliminado".
+    // Si hay id pero aún no ha cargado la categoría, undefined → '' (no se pinta)
+    const nombre: string = textoOEliminado(
+      caja.categoriaId === null ? null : this.categoria()?.nombre,
+    );
+    const partes: string[] = [];
 
-        if (nombre) {
-            partes.push(nombre.charAt(0).toUpperCase() + nombre.slice(1));
-        }
-        partes.push(caja.unidades === 1 ? '1 ud' : caja.unidades + ' uds');
-        if (caja.pesoKg !== null) {
-            partes.push(
-                caja.pesoKg.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) +
-                ' kg',
-            );
-        }
-        return partes.join(' · ');
-    });
+    if (nombre) {
+      partes.push(nombre.charAt(0).toUpperCase() + nombre.slice(1));
+    }
+    partes.push(caja.unidades === 1 ? '1 ud' : caja.unidades + ' uds');
+    if (caja.pesoKg !== null) {
+      partes.push(
+        caja.pesoKg.toLocaleString('es-ES', {
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1,
+        }) + ' kg',
+      );
+    }
+    return partes.join(' · ');
+  });
 
-    protected readonly estadoTexto = computed(() => {
-        switch (this.caja().estado) {
-            case ESTADOS_CAJA.ABIERTA:
-                return 'Abierta';
-            case ESTADOS_CAJA.CERRADA:
-                return 'Sin asignar';
-            default:
-                return 'Asignada';
-        }
-    });
+  protected readonly estadoTexto = computed(() => {
+    switch (this.caja().estado) {
+      case ESTADOS_CAJA.ABIERTA:
+        return 'Abierta';
+      case ESTADOS_CAJA.CERRADA:
+        return 'Sin asignar';
+      default:
+        return 'Asignada';
+    }
+  });
 }
