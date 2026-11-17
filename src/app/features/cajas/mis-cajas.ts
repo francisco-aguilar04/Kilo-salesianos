@@ -1,11 +1,15 @@
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 import { Auth } from '../../core/services/auth';
 import { AsociacionDuplicadaError, CajasService } from '../../core/services/caja-service';
 import { CategoriasService } from '../../core/services/categorias-service';
 import { AsociacionesService } from '../../core/services/asociaciones-service';
+import { ResumenService } from '../../core/services/resumen-service';
+import { UsuariosService } from '../../core/services/usuarios-service';
+import { ROLES } from '../../core/constants/roles';
+import { Usuario } from '../../core/interfaces/usuario';
 import { ESTADOS_CAJA, EstadoCaja } from '../../core/constants/estados-caja';
 import { Asociacion } from '../../core/interfaces/asociacion';
 import { Caja } from '../../core/interfaces/caja';
@@ -20,6 +24,26 @@ interface AvisoPantalla {
   mensaje: string;
 }
 
+// A9: botones del filtro por estado (null = sin filtro)
+interface OpcionEstado {
+  valor: EstadoCaja | null;
+  etiqueta: string;
+}
+
+const OPCIONES_ESTADO: OpcionEstado[] = [
+  { valor: null, etiqueta: 'Todas' },
+  { valor: ESTADOS_CAJA.ABIERTA, etiqueta: 'Abiertas' },
+  { valor: ESTADOS_CAJA.CERRADA, etiqueta: 'Sin asignar' },
+  { valor: ESTADOS_CAJA.ASIGNADA, etiqueta: 'Asignadas' },
+];
+
+/** Las más recientes primero (se ordena en local, igual que obtenerCajasDe). */
+function masRecientesPrimero(cajas: Caja[]): Caja[] {
+  return [...cajas].sort(
+    (a, b) => (b.fechaApertura?.toMillis() ?? 0) - (a.fechaApertura?.toMillis() ?? 0),
+  );
+}
+
 @Component({
   selector: 'app-mis-cajas',
   standalone: true,
@@ -32,6 +56,8 @@ export class MisCajasComponent {
   private readonly cajasService = inject(CajasService);
   private readonly categoriasService = inject(CategoriasService);
   private readonly asociacionesService = inject(AsociacionesService);
+  private readonly resumenService = inject(ResumenService);
+  private readonly usuariosService = inject(UsuariosService);
   private readonly destroyRef = inject(DestroyRef);
 
   // "miércoles 4 de noviembre"
@@ -39,17 +65,83 @@ export class MisCajasComponent {
     .toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })
     .replace(',', '');
 
+  // ---- A9: el admin ve las bolsas de todos; el voluntario, solo las suyas ----
+  protected readonly esAdmin = this.authService.isAdmin;
+  private readonly uid = computed(() => this.authService.user()?.uid ?? null);
+
   // null = todavía cargando
   protected readonly cajas = toSignal<Caja[] | null>(
-    this.authService.user$.pipe(
-      switchMap((u) => (u ? this.cajasService.obtenerCajasDe(u.uid) : of([] as Caja[]))),
+    this.authService.usuario$.pipe(
+      // Solo nos importa quién es y si es admin; así no se rehace la consulta
+      // cada vez que cambia otro campo de su ficha
+      map((u) => (u ? { uid: u.uid, admin: u.rol === ROLES.COORDINADOR } : null)),
+      distinctUntilChanged((a, b) => a?.uid === b?.uid && a?.admin === b?.admin),
+      switchMap((sesion) => {
+        if (!sesion) return of([] as Caja[]);
+        return sesion.admin
+          ? this.resumenService.obtenerCajas().pipe(map(masRecientesPrimero)) // sin filtro de usuario
+          : this.cajasService.obtenerCajasDe(sesion.uid);
+      }),
     ),
     { initialValue: null },
   );
 
-  private readonly categorias = toSignal(this.categoriasService.obtenerTodas(), {
+  // Usuarios para la columna "creador". Solo el admin puede leerlos (rules),
+  // así que el voluntario ni lo intenta: si no, la consulta daría error de permisos.
+  private readonly usuarios = toSignal(
+    this.authService.isAdmin$.pipe(
+      distinctUntilChanged(),
+      switchMap((admin) =>
+        admin
+          ? this.usuariosService.usuarios$.pipe(catchError(() => of([] as Usuario[])))
+          : of([] as Usuario[]),
+      ),
+    ),
+    { initialValue: [] as Usuario[] },
+  );
+
+  private readonly nombrePorUid = computed(
+    () => new Map(this.usuarios().map((u) => [u.uid, u.nombre])),
+  );
+
+  protected readonly categorias = toSignal(this.categoriasService.obtenerTodas(), {
     initialValue: [] as Categoria[],
   });
+
+  // Filtros (null = sin filtro). Solo se muestran al admin.
+  protected readonly opcionesEstado = OPCIONES_ESTADO;
+  protected readonly filtroEstado = signal<EstadoCaja | null>(null);
+  protected readonly filtroCategoria = signal<string | null>(null);
+
+  protected readonly cajasFiltradas = computed(() => {
+    const estado = this.filtroEstado();
+    const categoriaId = this.filtroCategoria();
+    return (this.cajas() ?? []).filter(
+      (caja) =>
+        (estado === null || caja.estado === estado) &&
+        (categoriaId === null || caja.categoriaId === categoriaId),
+    );
+  });
+
+  protected cambiarFiltroEstado(estado: EstadoCaja | null): void {
+    this.filtroEstado.set(estado);
+  }
+
+  // Pulsar la categoría ya elegida la quita (vuelve a "Todas")
+  protected cambiarFiltroCategoria(categoriaId: string | null): void {
+    this.filtroCategoria.set(this.filtroCategoria() === categoriaId ? null : categoriaId);
+  }
+
+  /** undefined = no se muestra (voluntario); null = creador desconocido o eliminado. */
+  protected creadorDe(caja: Caja): string | null | undefined {
+    if (!this.esAdmin()) return undefined;
+    return this.nombrePorUid().get(caja.creadaPor) ?? null;
+  }
+
+  /** Las acciones (asignar, reabrir, cambiar, quitar) solo salen en las bolsas propias. */
+  protected esMia(caja: Caja): boolean {
+    return caja.creadaPor === this.uid();
+  }
 
   private readonly categoriaPorId = computed(
     () => new Map(this.categorias().map((categoria) => [categoria.id, categoria])),
@@ -83,7 +175,8 @@ export class MisCajasComponent {
   }
 
   protected categoriaDe(caja: Caja): Categoria | undefined {
-    return this.categoriaPorId().get(caja.categoriaId);
+    // categoriaId puede ser null si se borró la categoría (A8): entonces no hay categoría
+    return caja.categoriaId ? this.categoriaPorId().get(caja.categoriaId) : undefined;
   }
 
   protected nombreAsociacionDe(caja: Caja): string | null {
@@ -235,13 +328,17 @@ export class MisCajasComponent {
   }
 
   private filtrar(estado: EstadoCaja): Caja[] {
-    return (this.cajas() ?? []).filter((caja) => caja.estado === estado);
+    return this.cajasFiltradas().filter((caja) => caja.estado === estado);
   }
 
   protected readonly reabriendo = signal(false);
 
   protected async reabrir(caja: Caja): Promise<void> {
-    if (this.abiertas().length > 0) {
+    // Se mira la lista completa y solo las propias: el admin ve también las de los demás
+    const tengoAbierta = (this.cajas() ?? []).some(
+      (c) => c.estado === ESTADOS_CAJA.ABIERTA && this.esMia(c),
+    );
+    if (tengoAbierta) {
       this.mostrarAviso({
         tipo: 'aviso',
         titulo: 'Ya tienes una bolsa abierta',

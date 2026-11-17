@@ -66,6 +66,18 @@
   color: #666;
 }
 
+// A9: creador de la bolsa (solo lo ve el admin)
+.creador {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.15rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1f1f23;
+  overflow-wrap: anywhere;
+}
+
 .estado {
   flex: none;
   padding: 0.2rem 0.6rem;

@@ -10,6 +10,9 @@
     <span class="textos">
       <span class="codigo">{{ caja().codigo }}</span>
       <span class="detalle">{{ detalle() }}</span>
+      @if (creador() !== undefined) {
+        <span class="creador"><i class="bi bi-person"></i> {{ creador() ?? '—' }}</span>
+      }
       @if (asociacion(); as nombre) {
         <p class="asociacion"><i class="bi bi-box-arrow-right"></i> {{ nombre }}</p>
       }
