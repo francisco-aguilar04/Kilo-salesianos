@@ -6,7 +6,7 @@ import { MisCajasComponent } from './features/cajas/mis-cajas';
 import { AsociacionesComponent } from './features/asociaciones/asociaciones';
 import { AsociacionDetalleComponent } from './features/asociaciones/asociacion-detalle';
 import { PerfilComponent } from './features/perfil/perfil';
-import { authGuard, guestGuard, roleGuard } from './core/guards/auth-guard';
+import { authGuard, guestGuard, roleGuard, adminGuard } from './core/guards/auth-guard';
 import { ROLES } from './core/constants/roles';
 
 export const routes: Routes = [
@@ -36,6 +36,12 @@ export const routes: Routes = [
     path: 'asociaciones/:id', // B3: detalle de entidad
     component: AsociacionDetalleComponent,
     canActivate: [authGuard, roleGuard(ROLES.COORDINADOR)],
+  },
+  {
+    path: 'categorias', // A6: crear categorías (solo admin)
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () =>
+      import('./features/categorias/categorias').then((m) => m.CategoriasComponent),
   },
   { path: '**', redirectTo: '' },
 ];

@@ -1,233 +1,254 @@
 .resumen {
-    max-width: 24rem;
-    margin: 0 auto;
-    padding: calc(env(safe-area-inset-top, 0px) + 2rem) 1rem calc(var(--navbar-alto) + env(safe-area-inset-bottom, 0px) + 1rem);
+  max-width: 24rem;
+  margin: 0 auto;
+  padding: calc(env(safe-area-inset-top, 0px) + 2rem) 1rem
+    calc(var(--navbar-alto) + env(safe-area-inset-bottom, 0px) + 1rem);
 }
 
 .cabecera h1 {
-    margin: 0;
-    font-size: 1.75rem;
+  margin: 0;
+  font-size: 1.75rem;
 }
 
 .subtitulo {
-    margin: 0.25rem 0 0;
-    font-size: 0.85rem;
-    color: #666;
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  color: #666;
 }
 
 .cifras {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
-    margin-top: 1.25rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-top: 1.25rem;
 }
 
 .cifra {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.15rem;
-    padding: 0.75rem;
-    border: 1px solid #e5e5e5;
-    border-radius: 1rem;
-    background: #fff;
-    text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.75rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 1rem;
+  background: #fff;
+  text-align: center;
 }
 
 .cifra__valor {
-    font-size: 1.4rem;
-    font-weight: 800;
+  font-size: 1.4rem;
+  font-weight: 800;
 }
 
 .cifra__valor--destacado {
-    color: #e32124;
+  color: #e32124;
 }
 
 .cifra__etiqueta {
-    font-size: 0.75rem;
-    color: #666;
+  font-size: 0.75rem;
+  color: #666;
 }
 
 .tarjeta {
-    margin-top: 1rem;
-    padding: 1rem;
-    border: 1px solid #e5e5e5;
-    border-radius: 1rem;
-    background: #fff;
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 1rem;
+  background: #fff;
 }
 
 .tarjeta__titulo {
-    margin: 0 0 0.75rem;
-    font-size: 1rem;
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
 }
 
 // Barra apilada
 .barra {
-    display: flex;
-    height: 0.6rem;
-    overflow: hidden;
-    border-radius: 999px;
-    background: #efeff2;
+  display: flex;
+  height: 0.6rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #efeff2;
 }
 
 .barra__tramo--asignada {
-    background: #1e9e5a;
+  background: #1e9e5a;
 }
 
 .barra__tramo--cerrada {
-    background: #666;
+  background: #666;
 }
 
 .barra__tramo--abierta {
-    background: #f2a516;
+  background: #f2a516;
 }
 
 .leyenda {
-    margin: 0.75rem 0 0;
-    padding: 0;
-    list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
 }
 
 .leyenda__fila {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.25rem 0;
-    font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+  font-size: 0.85rem;
 }
 
 .leyenda__etiqueta {
-    flex: 1;
+  flex: 1;
 }
 
 .leyenda__cantidad {
-    font-weight: 700;
+  font-weight: 700;
 }
 
 .punto {
-    flex: none;
-    width: 0.6rem;
-    height: 0.6rem;
-    border-radius: 50%;
+  flex: none;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
 }
 
 .punto--asignada {
-    background: #1e9e5a;
+  background: #1e9e5a;
 }
 
 .punto--cerrada {
-    background: #666;
+  background: #666;
 }
 
 .punto--abierta {
-    background: #f2a516;
+  background: #f2a516;
 }
 
 // Kg por asociación
 .filas {
-    margin: 0;
-    padding: 0 0.25rem 0 0;
-    list-style: none;
-    max-height: 18rem;
-    overflow-y: auto;
+  margin: 0;
+  padding: 0 0.25rem 0 0;
+  list-style: none;
+  max-height: 18rem;
+  overflow-y: auto;
 }
 
-.fila+.fila {
-    margin-top: 0.75rem;
+.fila + .fila {
+  margin-top: 0.75rem;
 }
 
 .fila__cabecera {
-    display: flex;
-    justify-content: space-between;
-    gap: 0.5rem;
-    font-size: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.85rem;
 }
 
 .fila__nombre {
-    min-width: 0;
-    overflow-wrap: anywhere;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .fila__kg {
-    flex: none;
-    font-weight: 700;
+  flex: none;
+  font-weight: 700;
 }
 
 .fila__pista {
-    height: 0.4rem;
-    margin-top: 0.35rem;
-    overflow: hidden;
-    border-radius: 999px;
-    background: #efeff2;
+  height: 0.4rem;
+  margin-top: 0.35rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #efeff2;
 }
 
 .fila__relleno {
-    height: 100%;
-    border-radius: 999px;
-    background: #e32124;
+  height: 100%;
+  border-radius: 999px;
+  background: #e32124;
 }
 
 .vacio {
-    color: #666;
-    font-size: 0.85rem;
+  color: #666;
+  font-size: 0.85rem;
 }
 
 // Tablet y PC: panel más ancho, cifras grandes y las dos tarjetas en dos columnas
 @media (min-width: 48rem) {
-    .resumen {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.25rem;
-        align-items: start;
-        max-width: 64rem;
-        padding: 2.5rem 2rem calc(var(--navbar-alto) + env(safe-area-inset-bottom, 0px) + 2rem);
-    }
+  .resumen {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    align-items: start;
+    max-width: 64rem;
+    padding: 2.5rem 2rem calc(var(--navbar-alto) + env(safe-area-inset-bottom, 0px) + 2rem);
+  }
 
-    .cabecera,
-    .cifras {
-        grid-column: 1 / -1;
-    }
+  .cabecera,
+  .cifras {
+    grid-column: 1 / -1;
+  }
 
-    .cabecera h1 {
-        font-size: 2.25rem;
-    }
+  .cabecera h1 {
+    font-size: 2.25rem;
+  }
 
-    .subtitulo {
-        font-size: 1rem;
-    }
+  .subtitulo {
+    font-size: 1rem;
+  }
 
-    .cifras {
-        gap: 1.25rem;
-        margin-top: 0;
-    }
+  .cifras {
+    gap: 1.25rem;
+    margin-top: 0;
+  }
 
-    .cifra {
-        padding: 1.5rem;
-    }
+  .cifra {
+    padding: 1.5rem;
+  }
 
-    .cifra__valor {
-        font-size: 2.5rem;
-    }
+  .cifra__valor {
+    font-size: 2.5rem;
+  }
 
-    .cifra__etiqueta {
-        font-size: 0.95rem;
-    }
+  .cifra__etiqueta {
+    font-size: 0.95rem;
+  }
 
-    .tarjeta {
-        margin-top: 0;
-        padding: 1.5rem;
-    }
+  .tarjeta {
+    margin-top: 0;
+    padding: 1.5rem;
+  }
 
-    .tarjeta__titulo {
-        font-size: 1.15rem;
-    }
+  .tarjeta__titulo {
+    font-size: 1.15rem;
+  }
 
-    .leyenda__fila,
-    .fila__cabecera {
-        font-size: 1rem;
-    }
+  .leyenda__fila,
+  .fila__cabecera {
+    font-size: 1rem;
+  }
 
-    .filas {
-        max-height: 24rem;
-    }
+  .filas {
+    max-height: 24rem;
+  }
+}
+
+// A6: acceso a Categorías desde el Resumen
+.enlace-categorias {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 999px;
+  background: #fff;
+  color: #1a56db;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    border-color: #1a56db;
+  }
 }
