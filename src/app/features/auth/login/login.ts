@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Auth } from '../../../core/services/auth';
+import { Auth, CuentaBajaError } from '../../../core/services/auth';
 
 // código de error de Firebase -> mensaje para el usuario
 const MENSAJES_ERROR: Record<string, string> = {
@@ -63,6 +63,11 @@ export class LoginComponent {
       await this.router.navigateByUrl('/');
 
     } catch (e: unknown) {
+
+      if (e instanceof CuentaBajaError) {
+        this.error.set('Tu cuenta está dada de baja. Habla con un coordinador.');
+        return;
+      }
 
       // Firebase devuelve un objeto con la propiedad `code`
       const code: string = (e as { code?: string }).code ?? '';
