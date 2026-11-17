@@ -17,6 +17,7 @@ import { Categoria } from '../../core/interfaces/categoria';
 import { TarjetaCaja } from '../../shared/components/tarjeta-caja/tarjeta-caja';
 import { Aviso, TipoAviso } from '../../shared/components/aviso/aviso';
 import { HojaAsignarCaja } from '../hoja-asignar-caja/hoja-asignar-caja';
+import { ModalConfirmar } from '../../shared/components/modal-confirmar/modal-confirmar';
 
 interface AvisoPantalla {
   tipo: TipoAviso;
@@ -47,7 +48,7 @@ function masRecientesPrimero(cajas: Caja[]): Caja[] {
 @Component({
   selector: 'app-mis-cajas',
   standalone: true,
-  imports: [TarjetaCaja, Aviso, HojaAsignarCaja],
+  imports: [TarjetaCaja, Aviso, HojaAsignarCaja, ModalConfirmar],
   templateUrl: './mis-cajas.html',
   styleUrl: './mis-cajas.scss',
 })
@@ -249,6 +250,53 @@ export class MisCajasComponent {
     } finally {
       this.cambiandoEntidad.set(false);
       this.cajaPorCambiar.set(null);
+    }
+  }
+
+  // ---- A10: borrar una bolsa (solo admin) ----
+  protected readonly cajaPorBorrar = signal<Caja | null>(null);
+  protected readonly borrandoCaja = signal(false);
+  protected readonly errorBorrado = signal<string | null>(null);
+
+  protected readonly mensajeBorrado = computed(() => {
+    const caja = this.cajaPorBorrar();
+    if (!caja) return '';
+    const alimentos = caja.unidades === 1 ? '1 alimento' : `${caja.unidades} alimentos`;
+    const base = `Se borrará ${caja.codigo} con sus ${alimentos}. No se puede deshacer.`;
+    if (caja.estado !== ESTADOS_CAJA.ASIGNADA) return base;
+    const entidad = this.nombreAsociacionDe(caja) ?? 'Su entidad';
+    return `${base} ${entidad} dejará de contar sus ${caja.pesoKg ?? 0} kg.`;
+  });
+
+  protected abrirBorrado(caja: Caja): void {
+    this.errorBorrado.set(null);
+    this.cajaPorBorrar.set(caja);
+  }
+
+  protected cancelarBorrado(): void {
+    if (!this.borrandoCaja()) this.cajaPorBorrar.set(null);
+  }
+
+  protected async confirmarBorrado(): Promise<void> {
+    const caja = this.cajaPorBorrar();
+    if (!caja || this.borrandoCaja()) return;
+
+    this.borrandoCaja.set(true);
+    this.errorBorrado.set(null);
+    try {
+      await this.cajasService.borrarCaja(caja.id);
+      this.cajaPorBorrar.set(null);
+      this.mostrarAviso({
+        tipo: 'exito',
+        titulo: 'Bolsa borrada',
+        mensaje: `${caja.codigo} ya no existe`,
+      });
+    } catch (e) {
+      console.error(e);
+      // El modal sigue abierto y muestra el error, como al borrar una entidad
+      this.errorBorrado.set('No se ha podido borrar. Inténtalo de nuevo.');
+    } finally {
+      this.borrandoCaja.set(false);
     }
   }
 

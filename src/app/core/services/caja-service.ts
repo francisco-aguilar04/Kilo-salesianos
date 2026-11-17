@@ -277,5 +277,34 @@ export class CajasService {
         tx.update(refNueva, { kgRecibidos: increment(kg), numCajas: increment(1) });
       }),
     );
+  } /** A10: borra una bolsa (solo admin). Sus unidades son solo un contador dentro del
+   *  documento, así que desaparecen con él. Si estaba asignada, su entidad deja de contar
+   *  sus kg y una bolsa (igual que en A4). Todo en una transacción. */
+  async borrarCaja(cajaId: string): Promise<void> {
+    return runInInjectionContext(this.injector, () =>
+      runTransaction(this.firestore, async (tx) => {
+        const refCaja = doc(this.firestore, 'cajas', cajaId);
+        const snapCaja = await tx.get(refCaja);
+        if (!snapCaja.exists()) throw new Error('La bolsa ya no existe');
+
+        const caja = snapCaja.data() as Caja;
+
+        // Todas las lecturas antes de cualquier escritura (regla de las transacciones)
+        const refAsociacion =
+          caja.estado === ESTADOS_CAJA.ASIGNADA && caja.asociacionId
+            ? doc(this.firestore, 'asociaciones', caja.asociacionId)
+            : null;
+        const snapAsociacion = refAsociacion ? await tx.get(refAsociacion) : null;
+
+        // Si la entidad ya no existe (la borró el admin), no hay nada que restar
+        if (refAsociacion && snapAsociacion?.exists()) {
+          tx.update(refAsociacion, {
+            kgRecibidos: increment(-(caja.pesoKg ?? 0)),
+            numCajas: increment(-1),
+          });
+        }
+        tx.delete(refCaja);
+      }),
+    );
   }
 }

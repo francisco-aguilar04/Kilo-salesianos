@@ -20,6 +20,20 @@
   />
 }
 
+@if (cajaPorBorrar()) {
+  <app-modal-confirmar
+    titulo="¿Borrar bolsa?"
+    [mensaje]="mensajeBorrado()"
+    textoBoton="Borrar bolsa"
+    textoProcesando="Borrando…"
+    [peligro]="true"
+    [procesando]="borrandoCaja()"
+    [error]="errorBorrado()"
+    (confirmar)="confirmarBorrado()"
+    (cancelar)="cancelarBorrado()"
+  />
+}
+
 @if (aviso(); as a) {
   <app-aviso class="aviso-flotante" [tipo]="a.tipo" [titulo]="a.titulo" [mensaje]="a.mensaje" />
 }
@@ -94,11 +108,13 @@
     <section class="grupo">
       <h2 class="grupo__titulo">{{ esAdmin() ? 'Abiertas' : 'Abierta' }}</h2>
       @for (caja of abiertas(); track caja.id) {
-        <app-tarjeta-caja
-          [caja]="caja"
-          [categoria]="categoriaDe(caja)"
-          [creador]="creadorDe(caja)"
-        />
+        <app-tarjeta-caja [caja]="caja" [categoria]="categoriaDe(caja)" [creador]="creadorDe(caja)">
+          @if (esAdmin()) {
+            <button type="button" class="accion-tarjeta" (click)="abrirBorrado(caja)">
+              <i class="bi bi-trash3"></i> Borrar
+            </button>
+          }
+        </app-tarjeta-caja>
       }
     </section>
   }
@@ -114,7 +130,13 @@
             [creador]="creadorDe(caja)"
             [interactiva]="esMia(caja)"
             (seleccionada)="abrirAsignacion($event)"
-          />
+          >
+            @if (esAdmin()) {
+              <button type="button" class="accion-tarjeta" (click)="abrirBorrado(caja)">
+                <i class="bi bi-trash3"></i> Borrar
+              </button>
+            }
+          </app-tarjeta-caja>
           @if (esMia(caja)) {
             <button
               type="button"
@@ -150,6 +172,11 @@
             </button>
             <button type="button" class="accion-tarjeta" (click)="quitarAsociacion(caja)">
               <i class="bi bi-x-circle"></i> Quitar asociación
+            </button>
+          }
+          @if (esAdmin()) {
+            <button type="button" class="accion-tarjeta" (click)="abrirBorrado(caja)">
+              <i class="bi bi-trash3"></i> Borrar
             </button>
           }
         </app-tarjeta-caja>
