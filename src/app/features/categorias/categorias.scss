@@ -83,6 +83,7 @@
 }
 
 .tarjeta {
+  position: relative; // para colocar la etiqueta "Inactiva" encima del borde
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -114,18 +115,22 @@
   overflow-wrap: anywhere;
 }
 
-// Etiqueta "Inactiva": ámbar para que se vea de un vistazo (aviso, no error)
+// Etiqueta "Inactiva": ámbar para que se vea de un vistazo (aviso, no error).
+// Va sobre el borde de arriba de la tarjeta, fuera de la fila, para no quitarle sitio al nombre
 .inactiva {
+  position: absolute;
+  top: 0;
+  left: 1.25rem;
+  transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  flex-shrink: 0; // que no se aplaste si el nombre es largo
-  padding: 0.25rem 0.75rem;
+  padding: 0.15rem 0.6rem;
   border: 1px solid #f59e0b;
   border-radius: 999px;
   background: #fef3c7;
   color: #92400e;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.03em;
