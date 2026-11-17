@@ -1,3 +1,4 @@
+// Mismo esqueleto que la pantalla de Entidades (asociaciones.scss)
 .pantalla {
   max-width: 24rem;
   margin: 0 auto;
@@ -80,6 +81,7 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
 .tarjeta {
   display: flex;
   align-items: center;
@@ -125,8 +127,10 @@
   font-size: 1.1rem;
   color: #6b7280;
 }
-// A7: botón de editar en cada tarjeta (solo admin)
-.editar {
+
+// A7 editar / A8 borrar: botones de cada tarjeta (solo admin)
+.editar,
+.borrar {
   display: grid;
   place-items: center;
   width: 2.5rem;
@@ -141,5 +145,14 @@
 
   &:hover {
     border-color: #1a56db;
+  }
+}
+
+// A8: el de borrar, en rojo
+.borrar {
+  color: #d55050;
+
+  &:hover {
+    border-color: #d55050;
   }
 }

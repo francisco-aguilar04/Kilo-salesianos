@@ -32,6 +32,15 @@
             >
               <i class="bi bi-pencil"></i>
             </button>
+            <!-- A8 -->
+            <button
+              type="button"
+              class="borrar"
+              (click)="abrirBorrado(c)"
+              aria-label="Borrar categoría"
+            >
+              <i class="bi bi-trash"></i>
+            </button>
           }
         </li>
       } @empty {
@@ -51,5 +60,20 @@
     [errorExterno]="errorModal()"
     (guardar)="guardar($event)"
     (cancelar)="cerrarModal()"
+  />
+}
+
+<!-- A8: confirmación antes de borrar -->
+@if (auth.isAdmin() && categoriaBorrando(); as c) {
+  <app-modal-confirmar
+    titulo="¿Borrar categoría?"
+    [mensaje]="mensajeBorrado(c)"
+    textoBoton="Borrar categoría"
+    textoProcesando="Borrando…"
+    [peligro]="true"
+    [procesando]="borrando()"
+    [error]="errorBorrado()"
+    (confirmar)="borrar()"
+    (cancelar)="cancelarBorrado()"
   />
 }

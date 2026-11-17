@@ -6,12 +6,14 @@ import {
   collection,
   collectionData,
   doc,
+  DocumentReference,
   Firestore,
   getDocs,
   orderBy,
   query,
   updateDoc,
   where,
+  writeBatch,
 } from '@angular/fire/firestore';
 import { QrInvalidoError } from '../errors/qr-invalid-error';
 
@@ -96,6 +98,35 @@ export class CategoriasService {
       if (mismoNombre.docs.some((d) => d.id !== id)) throw new CategoriaDuplicadaError('nombre');
 
       await updateDoc(doc(this.firestore, 'categorias', id), { nombre });
+    });
+  }
+
+  /** A8: borra una categoría (solo admin; las rules lo vuelven a comprobar).
+   *  Nada se borra en cascada: las bolsas que la usaban se quedan con categoriaId = null
+   *  (la A11 las mostrará como "Eliminado"). Las bolsas y la categoría van en el mismo lote:
+   *  o se hace todo o no se hace nada. Un lote admite 500 escrituras, así que si hubiera
+   *  muchas bolsas se reparten en varios lotes y la categoría se borra en el último. */
+  async borrarCategoria(id: string): Promise<void> {
+    const TAMANO_LOTE = 450;
+
+    return runInInjectionContext(this.injector, async () => {
+      const consulta = query(collection(this.firestore, 'cajas'), where('categoriaId', '==', id));
+      const snapBolsas = await getDocs(consulta);
+      const refsBolsas = snapBolsas.docs.map((d) => d.ref);
+      const refCategoria = doc(this.firestore, 'categorias', id);
+
+      const lotes: DocumentReference[][] = [];
+      for (let i = 0; i < refsBolsas.length; i += TAMANO_LOTE) {
+        lotes.push(refsBolsas.slice(i, i + TAMANO_LOTE));
+      }
+      if (lotes.length === 0) lotes.push([]); // categoría sin bolsas: solo se borra ella
+
+      for (let i = 0; i < lotes.length; i++) {
+        const lote = writeBatch(this.firestore);
+        lotes[i].forEach((ref) => lote.update(ref, { categoriaId: null }));
+        if (i === lotes.length - 1) lote.delete(refCategoria);
+        await lote.commit();
+      }
     });
   }
 }

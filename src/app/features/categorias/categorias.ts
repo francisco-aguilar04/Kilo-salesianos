@@ -8,11 +8,12 @@ import {
   NuevaCategoria,
 } from '../../core/services/categorias-service';
 import { ModalCategoria } from '../../shared/components/modal-categoria/modal-categoria';
+import { ModalConfirmar } from '../../shared/components/modal-confirmar/modal-confirmar';
 
 @Component({
   selector: 'app-categorias',
   standalone: true,
-  imports: [ModalCategoria],
+  imports: [ModalCategoria, ModalConfirmar],
   templateUrl: './categorias.html',
   styleUrl: './categorias.scss',
 })
@@ -86,6 +87,44 @@ export class CategoriasComponent {
       }
     } finally {
       this.guardando.set(false);
+    }
+  }
+
+  // ---- A8: borrar categoría con confirmación (solo admin) ----
+  // null = no hay confirmación abierta; una categoría = la que se va a borrar
+  protected readonly categoriaBorrando = signal<Categoria | null>(null);
+  protected readonly borrando = signal(false);
+  protected readonly errorBorrado = signal<string | null>(null);
+
+  protected mensajeBorrado(c: Categoria): string {
+    return `Vas a borrar «${c.nombre}». Las bolsas que la usaban no se borran: se quedarán sin categoría. Esta acción no se puede deshacer.`;
+  }
+
+  protected abrirBorrado(categoria: Categoria): void {
+    if (!this.auth.isAdmin()) return;
+    this.errorBorrado.set(null);
+    this.categoriaBorrando.set(categoria);
+  }
+
+  protected cancelarBorrado(): void {
+    if (this.borrando()) return;
+    this.categoriaBorrando.set(null);
+  }
+
+  protected async borrar(): Promise<void> {
+    const categoria = this.categoriaBorrando();
+    if (!categoria || !this.auth.isAdmin() || this.borrando()) return;
+
+    this.errorBorrado.set(null);
+    this.borrando.set(true);
+    try {
+      await this.categoriasService.borrarCategoria(categoria.id);
+      this.categoriaBorrando.set(null); // la lista se actualiza sola (tiempo real)
+    } catch (e) {
+      console.error(e);
+      this.errorBorrado.set('No se ha podido borrar la categoría. Inténtalo de nuevo');
+    } finally {
+      this.borrando.set(false);
     }
   }
 }
