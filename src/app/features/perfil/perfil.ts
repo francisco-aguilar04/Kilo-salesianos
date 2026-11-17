@@ -130,12 +130,39 @@ export class PerfilComponent {
 
   protected readonly editValido = computed(() => this.editNombre().trim().length > 0);
 
-  // Lista visible: sin el usuario con sesión ni el usuario protegido.
+  // ---- Buscador de usuarios ----
+  protected readonly busqueda = signal('');
+
+  protected buscar(valor: string): void {
+    this.busqueda.set(valor);
+  }
+
+  protected limpiarBusqueda(): void {
+    this.busqueda.set('');
+  }
+
+  // Minúsculas y sin tildes, para que "jose" encuentre "José".
+  private normalizar(texto: string): string {
+    return texto
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+  }
+
+  // Lista visible: sin el usuario con sesión ni el usuario protegido,
+  // y filtrada por el texto del buscador (nombre o email).
   protected readonly usuariosVisibles = computed(() => {
     const uidActual = this.usuario()?.uid;
-    return this.usuarios().filter(
-      (u) => u.uid !== uidActual && u.email.toLowerCase() !== EMAIL_PROTEGIDO,
-    );
+    const termino = this.normalizar(this.busqueda());
+    return this.usuarios().filter((u) => {
+      if (u.uid === uidActual || u.email.toLowerCase() === EMAIL_PROTEGIDO) return false;
+      if (!termino) return true;
+      return (
+        this.normalizar(u.nombre).includes(termino) ||
+        this.normalizar(u.email).includes(termino)
+      );
+    });
   });
 
   // No se puede editar a uno mismo ni al usuario protegido.
