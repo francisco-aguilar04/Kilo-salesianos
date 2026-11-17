@@ -1,0 +1,217 @@
+.pantalla {
+  max-width: 24rem;
+  margin: 0 auto;
+  padding: 2rem 1rem calc(var(--navbar-alto) + env(safe-area-inset-bottom, 0px) + 1rem);
+
+  @media (min-width: 768px) {
+    max-width: 48rem;
+  }
+
+  @media (min-width: 1100px) {
+    max-width: 70rem;
+  }
+}
+
+.volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a56db;
+  text-decoration: none;
+}
+
+.ficha {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: #e8f0fe;
+  color: #1a56db;
+  font-size: 1.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.info {
+  min-width: 0;
+
+  h1 {
+    margin: 0;
+    font-size: 1.9rem;
+    overflow-wrap: anywhere;
+  }
+}
+
+.contacto {
+  margin: 0.25rem 0 0;
+  font-size: 1rem;
+  color: #6b7280;
+  overflow-wrap: anywhere;
+}
+
+.resumen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+}
+
+.cifra {
+  flex-shrink: 0; // no se encoge cuando falta sitio
+  white-space: nowrap; // número y "kg" siempre en la misma línea
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  background: #f3f4f6;
+  font-size: 1rem;
+  color: #374151;
+
+  strong {
+    font-size: 1.2rem;
+  }
+}
+
+// ---- Editar y borrar entidad (B4, B5) ----
+.acciones-ficha {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0 0 1.75rem;
+
+  .boton {
+    flex: 1 1 100%; // en móvil, cada botón a todo el ancho
+
+    @media (min-width: 768px) {
+      flex: 0 0 auto;
+    }
+  }
+}
+
+.resumen + .acciones-ficha {
+  margin-top: -0.75rem; // pega los botones a los totales
+}
+
+.boton {
+  box-sizing: border-box;
+  padding: 0.7rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.secundario {
+  background: #ffffff;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.peligro {
+  background: #ffffff;
+  border-color: #d55050;
+  color: #d55050;
+}
+
+.subtitulo {
+  margin: 0 0 0.75rem;
+  font-size: 1.3rem;
+}
+
+.lista {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 1100px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.caja {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid #d1d5db;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+
+  > div {
+    min-width: 0; // el texto de la izquierda es el que se ajusta
+  }
+}
+
+.caja-codigo {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.caja-categoria {
+  margin: 0.2rem 0 0;
+  font-size: 0.95rem;
+  color: #374151;
+  overflow-wrap: anywhere; // una categoría larga baja a otra línea sin cortar nada
+}
+
+.caja-unidades {
+  margin: 0.1rem 0 0;
+  font-size: 0.9rem;
+  color: #6b7280;
+  white-space: nowrap; // "12 unidades" nunca se parte
+}
+
+.vacio {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #6b7280;
+}
+// ---- A5: cambiar entidad ----
+.cambiar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.5rem 0 0 -0.6rem; // el texto queda alineado con el código de la bolsa
+  padding: 0.35rem 0.6rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: none;
+  color: #1a56db; // el azul de "← Asociaciones"
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: #e8f0fe; // el fondo del avatar
+  }
+}
+
+.aviso-flotante {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 1rem);
+  left: 1rem;
+  right: 1rem;
+  z-index: 30;
+}

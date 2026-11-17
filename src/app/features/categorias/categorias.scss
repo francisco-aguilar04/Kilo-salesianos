@@ -1,0 +1,181 @@
+// Mismo esqueleto que la pantalla de Entidades (asociaciones.scss)
+.pantalla {
+  max-width: 24rem;
+  margin: 0 auto;
+  padding: 2rem 1rem calc(var(--navbar-alto) + env(safe-area-inset-bottom, 0px) + 1rem);
+
+  @media (min-width: 768px) {
+    max-width: 48rem;
+  }
+
+  @media (min-width: 1100px) {
+    max-width: 70rem;
+  }
+}
+
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+
+  h1 {
+    margin: 0;
+    font-size: 2.25rem;
+  }
+}
+
+.contador {
+  min-width: 2.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background: #d55050;
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.barra {
+  display: flex;
+  margin-bottom: 1.25rem;
+
+  .boton {
+    width: 100%;
+
+    @media (min-width: 768px) {
+      width: auto;
+      margin-left: auto;
+    }
+  }
+}
+
+.boton {
+  box-sizing: border-box;
+  padding: 0.7rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primario {
+  background: #1a56db;
+  color: #ffffff;
+}
+
+.lista {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 1100px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.tarjeta {
+  position: relative; // para colocar la etiqueta "Inactiva" encima del borde
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid #d1d5db;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+// Chip con el color de la categoría, como en la barra de la bolsa
+.codigo {
+  display: grid;
+  place-items: center;
+  min-width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 0.75rem;
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.nombre {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 1.25rem;
+  text-transform: capitalize; // en Firestore va en minúsculas
+  overflow-wrap: anywhere;
+}
+
+// Etiqueta "Inactiva": ámbar para que se vea de un vistazo (aviso, no error).
+// Va sobre el borde de arriba de la tarjeta, fuera de la fila, para no quitarle sitio al nombre
+.inactiva {
+  position: absolute;
+  top: 0;
+  left: 1.25rem;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.6rem;
+  border: 1px solid #f59e0b;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+
+  // Puntito delante del texto
+  &::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: #f59e0b;
+  }
+}
+
+.vacio {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #6b7280;
+}
+
+// A7 editar / A8 borrar: botones de cada tarjeta (solo admin)
+.editar,
+.borrar {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid #d1d5db;
+  border-radius: 0.75rem;
+  background: #ffffff;
+  color: #1a56db;
+  font-size: 1.1rem;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #1a56db;
+  }
+}
+
+// A8: el de borrar, en rojo
+.borrar {
+  color: #d55050;
+
+  &:hover {
+    border-color: #d55050;
+  }
+}

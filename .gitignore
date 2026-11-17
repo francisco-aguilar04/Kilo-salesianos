@@ -1,0 +1,45 @@
+# Compilación
+/dist
+/tmp
+/out-tsc
+/bazel-out
+
+# Dependencias
+node_modules/
+
+# Caché y logs
+/.angular/cache
+.sass-cache/
+npm-debug.log
+yarn-error.log
+firebase-debug.log
+firebase-debug.*.log
+ui-debug.log
+firestore-debug.log
+pglite-debug.log
+
+# Firebase
+.firebase/
+.runtimeconfig.json
+*-service-account*.json
+serviceAccountKey.json
+
+# Entorno local y secretos
+.env
+.env.*
+*.local
+
+# Editores y sistema
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+*.code-workspace
+.project
+.classpath
+*.launch
+.settings/
+.history/
+.DS_Store
+Thumbs.db

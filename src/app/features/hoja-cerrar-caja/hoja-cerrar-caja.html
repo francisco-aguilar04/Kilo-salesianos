@@ -1,0 +1,38 @@
+<div class="capa" (click)="cancelar.emit()"></div>
+
+<section class="hoja" role="dialog" aria-modal="true" aria-labelledby="titulo-cerrar">
+  <span class="asa" aria-hidden="true"></span>
+
+  <div>
+    <h2 id="titulo-cerrar" class="titulo">Cerrar bolsa</h2>
+    <p class="texto">
+      {{ caja().codigo }} · {{ categoria()?.nombre | titlecase }} · {{ caja().unidades }} unidades
+    </p>
+  </div>
+
+  <form class="formulario" (submit)="enviar($event)" novalidate>
+    <div class="campo">
+      <label for="peso" class="campo-etiqueta">Peso de la bolsa (kg)</label>
+      <input id="peso" type="number" inputmode="decimal" step="0.1" placeholder="0,0" autocomplete="off"
+        [formControl]="peso" [class.invalido]="mostrarError()" />
+
+      @if (mostrarError()) {
+      <p class="error" role="alert">
+        <i class="bi bi-exclamation-triangle"></i>
+        {{ peso.hasError('required') ? 'Introduce el peso de la bolsa.' : 'El peso debe ser mayor que 0 y como máximo '
+        +
+        pesoMaximo + ' kg.' }}
+      </p>
+      } @else {
+      <p class="ayuda"><i class="bi bi-info-circle"></i> Pésala en la báscula. Máximo {{ pesoMaximo }} kg.</p>
+      }
+    </div>
+
+    <button type="submit" class="boton primario" [disabled]="guardando() || mostrarError()">
+      {{ guardando() ? 'Cerrando…' : 'Cerrar bolsa' }}
+    </button>
+    <button type="button" class="boton secundario" [disabled]="guardando()" (click)="cancelar.emit()">
+      Seguir llenando
+    </button>
+  </form>
+</section>

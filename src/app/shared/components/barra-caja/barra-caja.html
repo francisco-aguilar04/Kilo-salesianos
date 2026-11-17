@@ -1,0 +1,14 @@
+<section class="barra" [style.background-color]="categoria()?.color ?? '#6b7280'">
+  <div class="datos">
+    <span class="estado">Caja abierta</span>
+    <strong class="categoria">{{ categoria()?.nombre | titlecase }}</strong>
+    <span class="codigo">{{ caja().codigo }}</span>
+  </div>
+  <div class="contador" aria-live="polite">
+    <span class="numero">{{ caja().unidades }}</span>
+    <span class="texto">{{ caja().unidades === 1 ? 'unidad' : 'unidades' }}</span>
+    <button type="button" class="quitar" (click)="quitar.emit()">
+      {{ caja().unidades === 0 ? 'Eliminar bolsa' : 'QUITAR' }}
+    </button>
+  </div>
+</section>

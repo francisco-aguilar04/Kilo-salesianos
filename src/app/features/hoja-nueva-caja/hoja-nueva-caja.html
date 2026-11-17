@@ -1,0 +1,23 @@
+<div class="capa" (click)="cancelar.emit()"></div>
+
+<section class="hoja" role="dialog" aria-modal="true" aria-labelledby="titulo-hoja">
+  <span class="asa" aria-hidden="true"></span>
+  <p class="etiqueta">QR LEÍDO</p>
+
+  <div class="categoria">
+    <span class="color" [style.background]="categoria().color">{{ categoria().codigoQr }}</span>
+    <div>
+      <h2 id="titulo-hoja" class="titulo">¿Nueva bolsa de {{ categoria().nombre | titlecase }}?</h2>
+      <p class="texto">Este alimento será el primero de la bolsa.</p>
+    </div>
+  </div>
+
+  <p class="nota">La categoría queda fijada al crear la bolsa y no se puede cambiar.</p>
+
+  <button type="button" class="boton primario" [disabled]="creando()" (click)="crear.emit()">
+    {{ creando() ? 'Creando…' : 'Crear bolsa' }}
+  </button>
+  <button type="button" class="boton secundario" [disabled]="creando()" (click)="cancelar.emit()">
+    Cancelar
+  </button>
+</section>

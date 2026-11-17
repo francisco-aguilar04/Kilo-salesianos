@@ -1,0 +1,21 @@
+<div class="capa" (click)="cerrar()">
+    <section class="modal" role="alertdialog" aria-modal="true" aria-labelledby="titulo-confirmar"
+        aria-describedby="mensaje-confirmar" (click)="$event.stopPropagation()">
+        <h2 id="titulo-confirmar" class="modal-titulo">{{ titulo() }}</h2>
+        <p id="mensaje-confirmar" class="mensaje">{{ mensaje() }}</p>
+
+        @if (error(); as e) {
+        <p class="error" role="alert">{{ e }}</p>
+        }
+
+        <div class="acciones">
+            <button type="button" class="boton" [class.peligro]="peligro()" [class.primario]="!peligro()"
+                [disabled]="procesando()" (click)="aceptar()">
+                {{ procesando() ? textoProcesando() : textoBoton() }}
+            </button>
+            <button type="button" class="boton secundario" [disabled]="procesando()" (click)="cerrar()">
+                Cancelar
+            </button>
+        </div>
+    </section>
+</div>

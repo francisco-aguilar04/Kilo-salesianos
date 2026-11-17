@@ -1,0 +1,123 @@
+:host {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--camara-fondo, #141416);
+}
+
+/* 1. El vídeo de la librería ocupa toda la pantalla */
+:host ::ng-deep .ngx-scanner-qrcode {
+  position: absolute;
+  inset: 0;
+}
+
+:host ::ng-deep .origin-video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  background: transparent;
+}
+
+:host ::ng-deep .origin-canvas,
+:host ::ng-deep .origin-overlay {
+  display: none;
+}
+
+/* 2. Marco del visor (Figma: "Marco visor", 260x260 centrado) */
+.visor {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  width: 260px;
+  height: 260px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.esquina {
+  position: absolute;
+  width: 49px;
+  height: 49px;
+  border: 4px solid var(--neutro-blanco, #ffffff);
+}
+
+.arriba-izquierda {
+  top: 0;
+  left: 0;
+  border-right: none;
+  border-bottom: none;
+  border-top-left-radius: 14px;
+}
+.arriba-derecha {
+  top: 0;
+  right: 0;
+  border-left: none;
+  border-bottom: none;
+  border-top-right-radius: 14px;
+}
+.abajo-izquierda {
+  bottom: 0;
+  left: 0;
+  border-right: none;
+  border-top: none;
+  border-bottom-left-radius: 14px;
+}
+.abajo-derecha {
+  bottom: 0;
+  right: 0;
+  border-left: none;
+  border-top: none;
+  border-bottom-right-radius: 14px;
+}
+
+.linea {
+  position: absolute;
+  top: 50%;
+  left: 20px;
+  right: 20px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--rojo-primario, #e32122);
+}
+
+/* 3. Mensajes de estado */
+.aviso {
+  position: absolute;
+  top: 50%;
+  left: 24px;
+  right: 24px;
+  transform: translateY(-50%);
+  margin: 0;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(20, 20, 22, 0.85);
+  color: var(--neutro-blanco, #ffffff);
+  text-align: center;
+}
+
+.aviso p {
+  margin: 0 0 12px;
+}
+
+.aviso button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 12px;
+  background: var(--rojo-primario, #e32122);
+  color: var(--neutro-blanco, #ffffff);
+  font: inherit;
+  font-weight: 600;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+app-root {
+  display: block;
+  height: 100%;
+}

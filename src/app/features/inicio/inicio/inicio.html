@@ -1,0 +1,81 @@
+<div class="camara">
+  <app-escaner (codigoLeido)="alLeerCodigo($event)" />
+
+  <header class="barra">
+    <div class="atras-grupo">
+      <button type="button" class="atras" aria-label="Introducir a mano" (click)="atras()">
+        <i class="bi bi-arrow-left"></i>
+      </button>
+      <span class="a-mano">A mano</span>
+    </div>
+    @if (cajaAbierta(); as caja) {
+      <app-barra-caja
+        (quitar)="quitarUnidad()"
+        class="barra-flotante"
+        [caja]="caja"
+        [categoria]="categoriaCaja()"
+      />
+    }
+  </header>
+
+  @if (!cajaAbierta() && !aviso()) {
+    <div class="pista">
+      <span class="pista__icono"><i class="bi bi-camera"></i></span>
+      <div>
+        <strong class="pista__titulo">Apunta al QR de un alimento</strong>
+        <p class="pista__texto">El primer alimento abre una caja nueva de su categoría.</p>
+      </div>
+    </div>
+  }
+  @if (categoriaPendiente(); as categoria) {
+    <app-hoja-nueva-caja
+      [categoria]="categoria"
+      [creando]="creandoCaja()"
+      (crear)="confirmarNuevaCaja()"
+      (cancelar)="cancelarNuevaCaja()"
+    />
+  }
+  @if (aviso(); as a) {
+    <app-aviso
+      class="aviso-flotante"
+      [class.sobre-boton]="cajaAbierta()"
+      [tipo]="a.tipo"
+      [titulo]="a.titulo"
+      [mensaje]="a.mensaje"
+    />
+  }
+
+  @if (cajaAbierta(); as caja) {
+    <button
+      type="button"
+      class="boton-cerrar"
+      [class.vacia]="caja.unidades === 0"
+      (click)="abrirCierre()"
+    >
+      Cerrar caja
+    </button>
+  }
+
+  @if (hojaCerrarAbierta()) {
+    @if (cajaAbierta(); as caja) {
+      <app-hoja-cerrar-caja
+        [caja]="caja"
+        [categoria]="categoriaCaja()"
+        [guardando]="cerrandoCaja()"
+        (confirmar)="confirmarCierre($event)"
+        (cancelar)="cancelarCierre()"
+      />
+    }
+  }
+</div>
+
+@if (cajaCerrada(); as caja) {
+  <app-hoja-asignar-caja
+    [caja]="caja"
+    [asociaciones]="asociaciones()"
+    [guardando]="asignandoCaja()"
+    (asignar)="confirmarAsignacion($event)"
+    (cancelar)="cancelarAsignacion()"
+    (crearNueva)="confirmarNuevaAsociacion($event)"
+  />
+}

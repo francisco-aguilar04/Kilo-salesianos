@@ -1,0 +1,28 @@
+:root {
+  --rojo-primario: #e32122;
+  --camara-fondo: #141416;
+  --neutro-blanco: #ffffff;
+  --neutro-texto: #1f1f23;
+  --neutro-texto-secundario: #6b6b73;
+  --neutro-fondo: #f6f6f8;
+  --navbar-alto: 4rem; // alto de la navbar sin contar la zona segura del móvil
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Montserrat', system-ui, sans-serif;
+}
+
+app-root {
+  display: block;
+  height: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}

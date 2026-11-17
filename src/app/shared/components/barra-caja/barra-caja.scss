@@ -1,0 +1,49 @@
+.barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px;
+  border-radius: 16px;
+  color: var(--neutro-blanco);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+.datos {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+.estado {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.categoria {
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.codigo {
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--neutro-blanco);
+  color: var(--neutro-texto);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.contador {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.numero {
+  font-size: 2.75rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.texto {
+  font-size: 0.8rem;
+}
+
+

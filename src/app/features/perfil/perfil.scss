@@ -1,0 +1,773 @@
+.perfil {
+    min-height: 100%;
+    background: #f7f7f9;
+    padding-bottom: calc(var(--navbar-alto) + env(safe-area-inset-bottom, 0px) + 1rem);
+}
+
+.cabecera {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: calc(env(safe-area-inset-top, 0px) + 2.5rem) 1.5rem 2rem;
+    background: #e32124;
+    border-radius: 0 0 2rem 2rem;
+    color: #fff;
+}
+
+.avatar {
+    display: grid;
+    place-items: center;
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
+    background: #fff;
+    color: #e32124;
+    font-size: 1.75rem;
+    font-weight: 800;
+}
+
+.nombre {
+    margin: 1rem 0 0.25rem;
+    font-size: 1.4rem;
+}
+
+.email {
+    margin: 0 0 0.75rem;
+    font-size: 0.85rem;
+    opacity: 0.9;
+}
+
+.rol {
+    padding: 0.25rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.25);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+// Tabs "Mi perfil" / "Usuarios" (solo coordinador)
+.tabs {
+    display: flex;
+    gap: 0.5rem;
+    max-width: 24rem;
+    margin: 1.5rem auto 0;
+    padding: 0 1rem;
+}
+
+.tab {
+    flex: 1;
+    padding: 0.7rem 1rem;
+    border: 2px solid #e32124;
+    border-radius: 999px;
+    background: #fff;
+    color: #e32124;
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+
+    &--activo {
+        background: #e32124;
+        color: #fff;
+    }
+}
+
+.dia {
+    max-width: 24rem;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 0;
+}
+
+.dia__titulo {
+    margin: 0 0 0.75rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #666;
+}
+
+.dia__tarjetas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.tarjeta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1rem;
+    border: 1px solid #e5e5e5;
+    border-radius: 1rem;
+    background: #fff;
+}
+
+.tarjeta__valor {
+    font-size: 1.6rem;
+    font-weight: 800;
+}
+
+.tarjeta__etiqueta {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+// Lista de usuarios (tab Usuarios)
+.usuarios {
+    max-width: 24rem;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 0;
+}
+
+.usuarios__lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.usuario {
+    overflow: hidden; // para que el hover respete las esquinas redondeadas
+    border: 1px solid #e5e5e5;
+    border-radius: 1rem;
+    background: #fff;
+}
+
+.usuario__fila {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+
+    &:not(:disabled) {
+        cursor: pointer;
+
+        &:hover,
+        &:focus-visible {
+            background: #fdeaea;
+            outline: none;
+        }
+    }
+
+    &:disabled {
+        color: inherit; // evita el gris por defecto de los botones deshabilitados
+    }
+}
+
+.usuario__chevron {
+    flex-shrink: 0;
+    color: #999;
+
+    .usuario__fila:hover & {
+        color: #e32124;
+    }
+}
+
+.usuario--vacio {
+    padding: 0.85rem 1rem;
+    color: #666;
+    text-align: center;
+}
+
+.usuario__datos {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.usuario__nombre {
+    font-weight: 700;
+}
+
+.usuario__email {
+    overflow: hidden;
+    font-size: 0.8rem;
+    color: #666;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.usuario__rol {
+    flex-shrink: 0;
+    padding: 0.25rem 0.8rem;
+    border-radius: 999px;
+    background: #fdeaea;
+    color: #e32124;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+// Botón "+ Nuevo usuario"
+.nuevo-usuario {
+    width: 100%;
+    margin-bottom: 1rem;
+    padding: 0.9rem;
+    border: 2px solid #e32124;
+    border-radius: 1rem;
+    background: #fff;
+    color: #e32124;
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+
+    &:hover {
+        background: #fdeaea;
+    }
+}
+
+// Formulario de alta de usuario
+.form-usuario {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    margin-bottom: 1rem;
+    padding: 1.25rem 1rem;
+    border: 1px solid #e5e5e5;
+    border-radius: 1rem;
+    background: #fff;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+
+    span {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #666;
+    }
+
+    input,
+    select {
+        box-sizing: border-box;
+        width: 100%;
+        padding: 0.8rem 0.9rem;
+        border: 1px solid #d5d5d9;
+        border-radius: 0.75rem;
+        background: #fff;
+        color: #222;
+        font: inherit;
+        font-size: 1rem;
+
+        &:focus {
+            outline: none;
+            border-color: #e32124;
+            box-shadow: 0 0 0 3px rgba(227, 33, 36, 0.15);
+        }
+    }
+}
+
+.form-usuario__acciones {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.btn-primario,
+.btn-secundario {
+    flex: 1;
+    padding: 0.85rem 1rem;
+    border-radius: 0.75rem;
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-primario {
+    border: 2px solid #e32124;
+    background: #e32124;
+    color: #fff;
+
+    &:hover:not(:disabled) {
+        background: #c81c1f;
+        border-color: #c81c1f;
+    }
+
+    &:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+}
+
+.btn-secundario {
+    border: 2px solid #d5d5d9;
+    background: #fff;
+    color: #555;
+
+    &:hover {
+        background: #efeff2;
+    }
+}
+
+// Aviso al cambiar la contraseña (B6)
+.exito {
+    margin: 1rem 0 0;
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    background: #e8f5e9;
+    color: #1b5e20;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+// Cambiar contraseña y cerrar sesión: apilados en móvil
+.acciones {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.cambiar-password {
+    width: 100%;
+    padding: 1rem;
+    border: 0;
+    border-radius: 1rem;
+    background: #efeff2;
+    color: #333;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.cerrar-sesion {
+    width: 100%;
+    padding: 1rem;
+    border: 0;
+    border-radius: 1rem;
+    background: #efeff2;
+    color: #e32124;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+@media (min-width: 768px) {
+    .perfil {
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+        min-height: 100%;
+    }
+
+    // Perfil en horizontal, en tres columnas:
+    // avatar | nombre y email | rol a la derecha
+    .cabecera {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        column-gap: 2.5rem;
+        align-items: center;
+        justify-items: start;
+        padding: calc(env(safe-area-inset-top, 0px) + 2.5rem) max(2rem, calc((100% - 72rem) / 2)) 2.5rem;
+    }
+
+    .avatar {
+        grid-row: 1 / span 2;
+        width: 8rem;
+        height: 8rem;
+        font-size: 3rem;
+    }
+
+    .nombre {
+        grid-column: 2;
+        align-self: end;
+        margin: 0 0 0.25rem;
+        font-size: 2.75rem;
+        line-height: 1.1;
+    }
+
+    .email {
+        grid-column: 2;
+        align-self: start;
+        margin: 0;
+        font-size: 1.25rem;
+    }
+
+    .rol {
+        grid-column: 3;
+        grid-row: 1 / span 2;
+        align-self: center;
+        padding: 0.8rem 2.2rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    // Tabs alineados con el contenido
+    .tabs {
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 72rem;
+        margin: 1.5rem auto 0;
+        padding: 0 2rem;
+    }
+
+    .tab {
+        flex: none;
+        padding: 0.7rem 2.5rem;
+        font-size: 1.05rem;
+    }
+
+    // "Tu día" ocupa el espacio restante; los botones quedan abajo del todo
+    .dia {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 72rem;
+        padding: 2rem 2rem 1rem;
+    }
+
+    .dia__titulo {
+        margin-bottom: 1rem;
+        font-size: 1rem;
+    }
+
+    // Tarjetas con altura limitada (ya no se estiran)
+    .dia__tarjetas {
+        gap: 1.5rem;
+    }
+
+    .tarjeta {
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 1.75rem 2rem;
+        border-radius: 1.5rem;
+    }
+
+    .tarjeta__valor {
+        font-size: 3.25rem;
+        line-height: 1;
+    }
+
+    .tarjeta__etiqueta {
+        font-size: 1.1rem;
+    }
+
+    // Lista de usuarios, con el mismo ancho que "Tu día"
+    .usuarios {
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 72rem;
+        padding: 2rem 2rem 1rem;
+    }
+
+    .usuarios__lista {
+        gap: 0.75rem;
+    }
+
+    .usuario {
+        border-radius: 1.25rem;
+    }
+
+    .usuario__fila,
+    .usuario--vacio {
+        padding: 1.1rem 1.5rem;
+    }
+
+    .usuario__nombre {
+        font-size: 1.1rem;
+    }
+
+    .usuario__email {
+        font-size: 0.95rem;
+    }
+
+    .usuario__rol {
+        padding: 0.35rem 1.1rem;
+        font-size: 0.9rem;
+    }
+
+    // Formulario de alta: más ancho, campos en dos columnas
+    .nuevo-usuario {
+        width: auto;
+        padding: 0.8rem 2rem;
+        font-size: 1.05rem;
+    }
+
+    .form-usuario {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+        padding: 1.75rem 2rem;
+        border-radius: 1.25rem;
+    }
+
+    .form-usuario__acciones {
+        grid-column: 1 / -1;
+        justify-content: flex-end;
+    }
+
+    .btn-primario,
+    .btn-secundario {
+        flex: none;
+        padding: 0.8rem 2.5rem;
+    }
+
+    .exito {
+        align-self: center;
+        padding: 0.8rem 2rem;
+        font-size: 1.05rem;
+    }
+
+    // Los dos botones, uno junto al otro y centrados abajo del todo
+    .acciones {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: auto;
+    }
+
+    // Botones legibles: más grandes, el de cerrar sesión en rojo sólido
+    .cambiar-password,
+    .cerrar-sesion {
+        width: auto;
+        padding: 0.9rem 2.5rem;
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    .cambiar-password {
+        border: 2px solid #e32124;
+        background: #fff;
+        color: #e32124;
+
+        &:hover {
+            background: #fdeaea;
+        }
+    }
+
+    .cerrar-sesion {
+        background: #e32124;
+        color: #fff;
+
+        &:hover {
+            background: #c81c1f;
+        }
+    }
+}
+
+.error-form {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 0.7rem 1rem;
+    border-radius: 0.75rem;
+    background: #fdeaea;
+    color: #b71c1c;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+// Modal de edición de usuario
+.modal-fondo {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.modal {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 26rem;
+    padding: 1.5rem 1.25rem;
+    border-radius: 1.25rem;
+    background: #fff;
+
+    // El formulario ya no es una tarjeta: va directo sobre el modal, en una columna
+    .form-usuario {
+        display: flex;
+        flex-direction: column;
+        gap: 0.9rem;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+    }
+
+    .btn-primario,
+    .btn-secundario {
+        flex: 1;
+        padding: 0.85rem 1rem;
+    }
+}
+
+.modal__titulo {
+    margin: 0 0 0.25rem;
+    font-size: 1.25rem;
+}
+
+.modal__email {
+    margin: 0 0 1.25rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+// ---- Lista de usuarios: fila clicable ----
+.usuario {
+    display: block;
+    padding: 0;
+    overflow: hidden; // el hover respeta las esquinas redondeadas
+}
+
+.usuario__fila {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+
+    &:not(:disabled) {
+        cursor: pointer;
+
+        &:hover,
+        &:focus-visible {
+            background: #fdeaea;
+            outline: none;
+        }
+    }
+
+    &:disabled {
+        color: inherit; // evita el gris por defecto de los botones deshabilitados
+    }
+}
+
+.usuario__datos {
+    flex: 1;
+    min-width: 0;
+}
+
+.usuario__chevron {
+    flex-shrink: 0;
+    color: #999;
+}
+
+.usuario__fila:hover .usuario__chevron {
+    color: #e32124;
+}
+
+.usuario--vacio {
+    display: block;
+    padding: 0.85rem 1rem;
+    color: #666;
+    text-align: center;
+}
+
+@media (min-width: 768px) {
+
+    .usuario__fila,
+    .usuario--vacio {
+        padding: 1.1rem 1.5rem;
+    }
+}
+
+// ---- Dar de baja / reactivar / eliminar ----
+.modal .baja {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #e5e5e5;
+}
+
+.baja__aviso {
+    margin: 0 0 0.9rem;
+    font-size: 0.9rem;
+    color: #444;
+}
+
+.btn-baja {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 2px solid #e32124;
+    border-radius: 0.75rem;
+    background: #fff;
+    color: #e32124;
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+        background: #fdeaea;
+    }
+
+    &:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+}
+
+.btn-eliminar {
+    box-sizing: border-box;
+    width: 100%;
+    margin-top: 0.75rem;
+    padding: 0.85rem 1rem;
+    border: 0;
+    border-radius: 0.75rem;
+    background: none;
+    color: #b71c1c;
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+        background: #fdeaea;
+    }
+
+    &:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+}
+
+// Estado "de baja" en la lista
+.usuario--baja .usuario__datos {
+    opacity: 0.55;
+}
+
+.usuario__rol--baja {
+    background: #efeff2;
+    color: #666;
+}
+
+.buscador {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.75rem 1rem;
+    margin: 0.75rem 0;
+    font: inherit;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    background: #fff;
+
+    &:focus {
+        outline: none;
+        border-color: #888;
+    }
+}

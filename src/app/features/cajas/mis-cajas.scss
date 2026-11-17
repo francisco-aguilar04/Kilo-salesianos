@@ -1,0 +1,193 @@
+.mis-cajas {
+  max-width: 24rem;
+  margin: 0 auto;
+  padding: calc(env(safe-area-inset-top, 0px) + 2rem) 1rem
+    calc(var(--navbar-alto) + env(safe-area-inset-bottom, 0px) + 1rem);
+
+  @media (min-width: 768px) {
+    max-width: 48rem;
+  }
+
+  @media (min-width: 1100px) {
+    max-width: 70rem;
+  }
+}
+
+.grupo {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 1100px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.cabecera h1 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+// A9: título + contador de bolsas (admin)
+.cabecera__fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.contador {
+  min-width: 2.25rem;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  background: #d55050;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+// A9: filtros. Cada fila de chips se desliza en horizontal en el móvil
+.filtros {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.chips {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem; // que la sombra del foco no se corte
+  scrollbar-width: none; // sin barra de scroll visible
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    flex-wrap: wrap; // en pantalla grande caben, mejor en varias líneas
+    overflow-x: visible;
+  }
+}
+
+.chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #1f1f23;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #1a56db;
+  }
+}
+
+.chip--categoria {
+  text-transform: capitalize; // en Firestore va en minúsculas
+}
+
+.chip--activo {
+  border-color: #1a56db;
+  background: #1a56db;
+  color: #ffffff;
+}
+
+// Puntito con el color de la categoría
+.chip__punto {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #ffffff; // se sigue viendo sobre el chip azul
+}
+
+.fecha {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.grupo__titulo {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #666;
+}
+
+.vacio {
+  margin-top: 2rem;
+  text-align: center;
+  color: #666;
+}
+
+.aviso-flotante {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 1rem);
+  left: 1rem;
+  right: 1rem;
+  z-index: 30;
+}
+
+.cerrada {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.boton-reabrir {
+  align-self: flex-end;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid #666;
+  border-radius: 999px;
+  background: none;
+  font-size: 0.8rem;
+}
+.accion-tarjeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.6rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: none;
+  color: #e32124;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: #fde8e8;
+  }
+}
+// A5: cambiar no borra nada, así que va en azul y no en rojo
+.accion-tarjeta--cambiar {
+  color: #1a56db;
+
+  &:hover {
+    background: #e8f0fe;
+  }
+}
