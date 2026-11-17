@@ -204,6 +204,8 @@ export class CajasService {
 
   /** A3: reabre una bolsa cerrada para seguir añadiendo. Borra peso y fecha de cierre. */
   async reabrirCaja(caja: Caja): Promise<void> {
+    // A11: si se borró al usuario, la bolsa ya no tiene dueño y no se puede reabrir
+    if (caja.creadaPor === null) throw new Error('La bolsa no tiene creador');
     const abierta = await firstValueFrom(this.obtenerCajaAbierta(caja.creadaPor));
     if (abierta) throw new Error(`Ya tienes abierta la bolsa ${abierta.codigo}`);
 

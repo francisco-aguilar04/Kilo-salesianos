@@ -2,18 +2,21 @@ import { Component, computed, input, output } from '@angular/core';
 import { ESTADOS_CAJA } from '../../../core/constants/estados-caja';
 import { Caja } from '../../../core/interfaces/caja';
 import { Categoria } from '../../../core/interfaces/categoria';
+import { EliminadoPipe, textoOEliminado } from '../../pipes/eliminado-pipe/eliminado-pipe';
 
 @Component({
   selector: 'app-tarjeta-caja',
   standalone: true,
+  imports: [EliminadoPipe],
   templateUrl: './tarjeta-caja.html',
   styleUrl: './tarjeta-caja.scss',
 })
 export class TarjetaCaja {
   readonly caja = input.required<Caja>();
   readonly categoria = input<Categoria | undefined>();
-  readonly asociacion = input<string | null>(null);
-  // A9: quién creó la bolsa. undefined = no se muestra (voluntario); null = desconocido
+  // A11: undefined = no se muestra; null = la entidad ya no existe ("Eliminado")
+  readonly asociacion = input<string | null | undefined>(undefined);
+  // A9: quién creó la bolsa. undefined = no se muestra; null = usuario borrado ("Eliminado")
   readonly creador = input<string | null | undefined>(undefined);
   readonly interactiva = input(false); // solo las cajas cerradas sin asignar se pueden tocar
   readonly seleccionada = output<Caja>();
@@ -25,7 +28,11 @@ export class TarjetaCaja {
 
   protected readonly detalle = computed(() => {
     const caja: Caja = this.caja();
-    const nombre: string = this.categoria()?.nombre ?? '';
+    // A11: categoriaId null = categoría borrada → "Eliminado".
+    // Si hay id pero aún no ha cargado la categoría, undefined → '' (no se pinta)
+    const nombre: string = textoOEliminado(
+      caja.categoriaId === null ? null : this.categoria()?.nombre,
+    );
     const partes: string[] = [];
 
     if (nombre) {

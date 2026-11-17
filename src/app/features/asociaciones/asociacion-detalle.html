@@ -50,7 +50,7 @@
           <li class="caja">
             <div>
               <p class="caja-codigo">{{ c.codigo }}</p>
-              <p class="caja-categoria">{{ categoriaDe(c)?.nombre | titlecase }}</p>
+              <p class="caja-categoria">{{ nombreCategoriaDe(c) | eliminado | titlecase }}</p>
               <p class="caja-unidades">
                 {{ c.unidades }} {{ c.unidades === 1 ? 'unidad' : 'unidades' }}
               </p>

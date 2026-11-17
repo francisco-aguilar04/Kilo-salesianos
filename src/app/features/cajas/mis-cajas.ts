@@ -133,10 +133,11 @@ export class MisCajasComponent {
     this.filtroCategoria.set(this.filtroCategoria() === categoriaId ? null : categoriaId);
   }
 
-  /** undefined = no se muestra (voluntario); null = creador desconocido o eliminado. */
+  /** undefined = no se muestra (voluntario o aún cargando); null = usuario borrado (A11: "Eliminado"). */
   protected creadorDe(caja: Caja): string | null | undefined {
     if (!this.esAdmin()) return undefined;
-    return this.nombrePorUid().get(caja.creadaPor) ?? null;
+    if (caja.creadaPor === null) return null;
+    return this.nombrePorUid().get(caja.creadaPor);
   }
 
   /** Las acciones (asignar, reabrir, cambiar, quitar) solo salen en las bolsas propias. */
@@ -180,10 +181,11 @@ export class MisCajasComponent {
     return caja.categoriaId ? this.categoriaPorId().get(caja.categoriaId) : undefined;
   }
 
-  protected nombreAsociacionDe(caja: Caja): string | null {
-    return caja.asociacionId
-      ? (this.asociacionPorId().get(caja.asociacionId)?.nombre ?? null)
-      : null;
+  /** Solo tiene sentido en bolsas asignadas.
+   *  null = la entidad ya no existe (A11: "Eliminado"); undefined = aún cargando. */
+  protected nombreAsociacionDe(caja: Caja): string | null | undefined {
+    if (caja.asociacionId === null) return null;
+    return this.asociacionPorId().get(caja.asociacionId)?.nombre;
   }
 
   // ---- A4: quitar asociación ----
