@@ -83,10 +83,11 @@ export class CategoriasService {
     });
   }
 
-  /** A7: cambia SOLO el nombre de una categoría (solo admin; las rules lo vuelven a comprobar).
-   *  Las bolsas guardan categoriaId, no el nombre, así que el cambio se ve solo en todas.
-   *  Lanza CategoriaDuplicadaError si OTRA categoría ya tiene ese nombre. */
-  async editarNombre(id: string, nombreNuevo: string): Promise<void> {
+  /** A7: cambia el nombre y el color de una categoría (solo admin; las rules lo vuelven a comprobar).
+   *  El código QR no se toca. Las bolsas guardan categoriaId, no el nombre ni el color,
+   *  así que el cambio se ve solo en todas. Lanza CategoriaDuplicadaError si OTRA categoría
+   *  ya tiene ese nombre. */
+  async editarCategoria(id: string, nombreNuevo: string, color: string): Promise<void> {
     const nombre = nombreNuevo.trim().replace(/\s+/g, ' ').toLowerCase();
     if (!nombre) throw new Error('El nombre es obligatorio');
 
@@ -97,7 +98,7 @@ export class CategoriasService {
       // Si la única que coincide es ella misma, no es un duplicado
       if (mismoNombre.docs.some((d) => d.id !== id)) throw new CategoriaDuplicadaError('nombre');
 
-      await updateDoc(doc(this.firestore, 'categorias', id), { nombre });
+      await updateDoc(doc(this.firestore, 'categorias', id), { nombre, color });
     });
   }
 

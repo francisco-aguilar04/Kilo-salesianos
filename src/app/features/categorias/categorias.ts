@@ -59,8 +59,8 @@ export class CategoriasComponent {
     if (!this.auth.isAdmin() || this.guardando()) return;
 
     const editando = this.categoriaEditando();
-    // Si no ha cambiado el nombre, no hace falta escribir en Firestore
-    if (editando && editando.nombre === datos.nombre) {
+    // Si no ha cambiado ni el nombre ni el color, no hace falta escribir en Firestore
+    if (editando && editando.nombre === datos.nombre && editando.color === datos.color) {
       this.modalAbierto.set(false);
       return;
     }
@@ -69,7 +69,7 @@ export class CategoriasComponent {
     this.guardando.set(true);
     try {
       if (editando) {
-        await this.categoriasService.editarNombre(editando.id, datos.nombre);
+        await this.categoriasService.editarCategoria(editando.id, datos.nombre, datos.color);
       } else {
         await this.categoriasService.crearCategoria(datos);
       }

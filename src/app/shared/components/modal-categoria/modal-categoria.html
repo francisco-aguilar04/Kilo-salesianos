@@ -57,7 +57,7 @@
           #campoColor
           type="color"
           [value]="color()"
-          [disabled]="guardando() || editando()"
+          [disabled]="guardando()"
           (input)="color.set(campoColor.value)"
         />
       </label>
