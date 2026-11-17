@@ -621,3 +621,137 @@
     font-size: 0.9rem;
     color: #666;
 }
+
+// ---- Lista de usuarios: fila clicable ----
+.usuario {
+    display: block;
+    padding: 0;
+    overflow: hidden; // el hover respeta las esquinas redondeadas
+}
+
+.usuario__fila {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+
+    &:not(:disabled) {
+        cursor: pointer;
+
+        &:hover,
+        &:focus-visible {
+            background: #fdeaea;
+            outline: none;
+        }
+    }
+
+    &:disabled {
+        color: inherit; // evita el gris por defecto de los botones deshabilitados
+    }
+}
+
+.usuario__datos {
+    flex: 1;
+    min-width: 0;
+}
+
+.usuario__chevron {
+    flex-shrink: 0;
+    color: #999;
+}
+
+.usuario__fila:hover .usuario__chevron {
+    color: #e32124;
+}
+
+.usuario--vacio {
+    display: block;
+    padding: 0.85rem 1rem;
+    color: #666;
+    text-align: center;
+}
+
+@media (min-width: 768px) {
+
+    .usuario__fila,
+    .usuario--vacio {
+        padding: 1.1rem 1.5rem;
+    }
+}
+
+// ---- Dar de baja / reactivar / eliminar ----
+.modal .baja {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #e5e5e5;
+}
+
+.baja__aviso {
+    margin: 0 0 0.9rem;
+    font-size: 0.9rem;
+    color: #444;
+}
+
+.btn-baja {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 2px solid #e32124;
+    border-radius: 0.75rem;
+    background: #fff;
+    color: #e32124;
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+        background: #fdeaea;
+    }
+
+    &:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+}
+
+.btn-eliminar {
+    box-sizing: border-box;
+    width: 100%;
+    margin-top: 0.75rem;
+    padding: 0.85rem 1rem;
+    border: 0;
+    border-radius: 0.75rem;
+    background: none;
+    color: #b71c1c;
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+        background: #fdeaea;
+    }
+
+    &:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+}
+
+// Estado "de baja" en la lista
+.usuario--baja .usuario__datos {
+    opacity: 0.55;
+}
+
+.usuario__rol--baja {
+    background: #efeff2;
+    color: #666;
+}

@@ -5,16 +5,23 @@ import {
     Firestore,
     collection,
     collectionData,
+    deleteDoc,
     doc,
+    getDocs,
     orderBy,
     query,
     setDoc,
-    updateDoc
+    updateDoc,
+    where,
+    writeBatch,
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Rol } from '../constants/roles';
 import { Usuario } from '../interfaces/usuario';
+
+// Este usuario no se puede editar, dar de baja ni eliminar.
+export const EMAIL_PROTEGIDO = 'admin@admin.com';
 
 export type MotivoCrearUsuario =
     | 'email-en-uso'
@@ -30,8 +37,6 @@ export class CrearUsuarioError extends Error {
         this.name = 'CrearUsuarioError';
     }
 }
-
-export const EMAIL_PROTEGIDO = 'admin@admin.com';
 
 export type MotivoActualizarUsuario = 'protegido' | 'sin-conexion' | 'desconocido';
 
@@ -99,6 +104,7 @@ export class UsuariosService {
                     nombre: datos.nombre,
                     email: datos.email,
                     rol: datos.rol,
+                    activo: true,
                 }),
             );
         } catch (e) {
@@ -116,9 +122,7 @@ export class UsuariosService {
         uidActual: string,
         cambios: { nombre: string; rol: Rol },
     ): Promise<void> {
-        if (objetivo.uid === uidActual || objetivo.email.toLowerCase() === EMAIL_PROTEGIDO) {
-            throw new ActualizarUsuarioError('protegido');
-        }
+        this.comprobarEditable(objetivo, uidActual);
         try {
             await runInInjectionContext(this.injector, () =>
                 updateDoc(doc(this.firestore, 'usuarios', objetivo.uid), {
@@ -127,10 +131,60 @@ export class UsuariosService {
                 }),
             );
         } catch (e) {
-            console.error(e);
-            throw new ActualizarUsuarioError(
-                (e as { code?: string })?.code === 'unavailable' ? 'sin-conexion' : 'desconocido',
-            );
+            throw this.errorActualizar(e);
         }
+    }
+
+    /** Da de baja (activo = false) o reactiva (activo = true) a un usuario. */
+    async establecerActivo(objetivo: Usuario, uidActual: string, activo: boolean): Promise<void> {
+        this.comprobarEditable(objetivo, uidActual);
+        try {
+            await runInInjectionContext(this.injector, () =>
+                updateDoc(doc(this.firestore, 'usuarios', objetivo.uid), { activo }),
+            );
+        } catch (e) {
+            throw this.errorActualizar(e);
+        }
+    }
+
+    /** Quita al usuario de sus bolsas (creadaPor = null) y borra su documento.
+     *  Si algo falla a medias, se puede reintentar: el documento se borra el último.
+     *  La cuenta de Authentication no se puede borrar desde el cliente. */
+    async eliminarUsuario(objetivo: Usuario, uidActual: string): Promise<void> {
+        this.comprobarEditable(objetivo, uidActual);
+        const ctx = <T>(fn: () => T): T => runInInjectionContext(this.injector, fn);
+
+        try {
+            const bolsas = await ctx(() =>
+                getDocs(
+                    query(collection(this.firestore, 'cajas'), where('creadaPor', '==', objetivo.uid)),
+                ),
+            );
+
+            // Los lotes de Firestore admiten 500 operaciones como máximo.
+            for (let i = 0; i < bolsas.docs.length; i += 400) {
+                const lote = ctx(() => writeBatch(this.firestore));
+                bolsas.docs.slice(i, i + 400).forEach((d) => lote.update(d.ref, { creadaPor: null }));
+                await lote.commit();
+            }
+
+            await ctx(() => deleteDoc(doc(this.firestore, 'usuarios', objetivo.uid)));
+        } catch (e) {
+            throw this.errorActualizar(e);
+        }
+    }
+
+    // No se puede gestionar a uno mismo ni al usuario protegido.
+    private comprobarEditable(objetivo: Usuario, uidActual: string): void {
+        if (objetivo.uid === uidActual || objetivo.email.toLowerCase() === EMAIL_PROTEGIDO) {
+            throw new ActualizarUsuarioError('protegido');
+        }
+    }
+
+    private errorActualizar(e: unknown): ActualizarUsuarioError {
+        console.error(e);
+        return new ActualizarUsuarioError(
+            (e as { code?: string })?.code === 'unavailable' ? 'sin-conexion' : 'desconocido',
+        );
     }
 }

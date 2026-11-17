@@ -125,6 +125,8 @@ export class PerfilComponent {
   protected readonly editRol = signal<Rol>(ROLES.VOLUNTARIO);
   protected readonly guardandoEdicion = signal(false);
   protected readonly errorEditar = signal<string | null>(null);
+  protected readonly confirmandoBaja = signal(false);
+  protected readonly confirmandoEliminar = signal(false);
 
   protected readonly editValido = computed(() => this.editNombre().trim().length > 0);
 
@@ -145,6 +147,8 @@ export class PerfilComponent {
     if (!this.puedeEditar(u)) return;
     this.errorEditar.set(null);
     this.usuarioCreado.set(null);
+    this.confirmandoBaja.set(false);
+    this.confirmandoEliminar.set(false);
     this.editNombre.set(u.nombre);
     this.editRol.set(u.rol);
     this.usuarioEditando.set(u);
@@ -152,8 +156,22 @@ export class PerfilComponent {
 
   protected cerrarEdicion(): void {
     if (this.guardandoEdicion()) return;
+    this.confirmandoBaja.set(false);
+    this.confirmandoEliminar.set(false);
     this.usuarioEditando.set(null);
     this.errorEditar.set(null);
+  }
+
+  private mensajeErrorEditar(e: unknown): string {
+    const motivo = e instanceof ActualizarUsuarioError ? e.motivo : 'desconocido';
+    switch (motivo) {
+      case 'protegido':
+        return 'Este usuario no se puede modificar';
+      case 'sin-conexion':
+        return 'Sin conexión. Comprueba tu internet e inténtalo de nuevo';
+      default:
+        return 'No se ha podido guardar. Inténtalo de nuevo';
+    }
   }
 
   protected async guardarEdicion(u: Usuario): Promise<void> {
@@ -171,22 +189,51 @@ export class PerfilComponent {
       this.usuarioEditando.set(null);
       this.usuarioCreado.set(`Usuario ${nombre} actualizado correctamente`);
     } catch (e) {
-      const motivo = e instanceof ActualizarUsuarioError ? e.motivo : 'desconocido';
-      switch (motivo) {
-        case 'protegido':
-          this.errorEditar.set('Este usuario no se puede modificar');
-          break;
-        case 'sin-conexion':
-          this.errorEditar.set('Sin conexión. Comprueba tu internet e inténtalo de nuevo');
-          break;
-        default:
-          this.errorEditar.set('No se ha podido guardar. Inténtalo de nuevo');
-      }
+      this.errorEditar.set(this.mensajeErrorEditar(e));
     } finally {
       this.guardandoEdicion.set(false);
     }
   }
 
+  // Dar de baja (activo = false) o reactivar (activo = true).
+  protected async cambiarEstado(u: Usuario, activo: boolean): Promise<void> {
+    const uidActual = this.usuario()?.uid;
+    if (!uidActual || this.guardandoEdicion()) return;
+
+    this.errorEditar.set(null);
+    this.guardandoEdicion.set(true);
+    try {
+      await this.usuariosService.establecerActivo(u, uidActual, activo);
+      this.confirmandoBaja.set(false);
+      this.usuarioEditando.set(null);
+      this.usuarioCreado.set(
+        activo ? `Usuario ${u.nombre} reactivado` : `Usuario ${u.nombre} dado de baja`,
+      );
+    } catch (e) {
+      this.errorEditar.set(this.mensajeErrorEditar(e));
+    } finally {
+      this.guardandoEdicion.set(false);
+    }
+  }
+
+  // Quita al usuario de sus bolsas y borra su documento.
+  protected async eliminar(u: Usuario): Promise<void> {
+    const uidActual = this.usuario()?.uid;
+    if (!uidActual || this.guardandoEdicion()) return;
+
+    this.errorEditar.set(null);
+    this.guardandoEdicion.set(true);
+    try {
+      await this.usuariosService.eliminarUsuario(u, uidActual);
+      this.confirmandoEliminar.set(false);
+      this.usuarioEditando.set(null);
+      this.usuarioCreado.set(`Usuario ${u.nombre} eliminado`);
+    } catch (e) {
+      this.errorEditar.set(this.mensajeErrorEditar(e));
+    } finally {
+      this.guardandoEdicion.set(false);
+    }
+  }
   // Se usa para redirigir al login tras cerrar sesión.
   private readonly router = inject(Router);
 

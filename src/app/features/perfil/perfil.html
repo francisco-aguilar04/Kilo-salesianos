@@ -78,14 +78,18 @@
         }
         <ul class="usuarios__lista">
             @for (u of usuariosVisibles(); track u.uid) {
-            <li class="usuario">
+            <li class="usuario" [class.usuario--baja]="u.activo === false">
                 <button type="button" class="usuario__fila" [disabled]="!puedeEditar(u)" (click)="abrirEdicion(u)"
                     [attr.aria-label]="puedeEditar(u) ? 'Editar ' + u.nombre : null">
-                    <div class="usuario__datos">
+                    <span class="usuario__datos">
                         <span class="usuario__nombre">{{ u.nombre }}</span>
                         <span class="usuario__email">{{ u.email }}</span>
-                    </div>
+                    </span>
+                    @if (u.activo === false) {
+                    <span class="usuario__rol usuario__rol--baja">De baja</span>
+                    } @else {
                     <span class="usuario__rol">{{ u.rol }}</span>
+                    }
                     @if (puedeEditar(u)) {
                     <svg class="usuario__chevron" viewBox="0 0 24 24" width="20" height="20" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -139,6 +143,38 @@
                     [disabled]="!editValido() || guardandoEdicion()">Guardar</button>
             </div>
         </form>
+
+        <div class="baja">
+            @if (u.activo === false) {
+            @if (confirmandoEliminar()) {
+            <p class="baja__aviso">¿Eliminar a {{ u.nombre }} definitivamente? Se borra su ficha y deja de figurar en
+                sus bolsas. No se puede deshacer.</p>
+            <div class="form-usuario__acciones">
+                <button type="button" class="btn-secundario" [disabled]="guardandoEdicion()"
+                    (click)="confirmandoEliminar.set(false)">No, volver</button>
+                <button type="button" class="btn-primario" [disabled]="guardandoEdicion()" (click)="eliminar(u)">Sí,
+                    eliminar</button>
+            </div>
+            } @else {
+            <button type="button" class="btn-baja" [disabled]="guardandoEdicion()"
+                (click)="cambiarEstado(u, true)">Reactivar usuario</button>
+            <button type="button" class="btn-eliminar" (click)="confirmandoEliminar.set(true)">Eliminar
+                definitivamente</button>
+            }
+            } @else if (confirmandoBaja()) {
+            <p class="baja__aviso">¿Dar de baja a {{ u.nombre }}? Dejará de poder acceder a la app. Podrás reactivarlo
+                cuando quieras.</p>
+            <div class="form-usuario__acciones">
+                <button type="button" class="btn-secundario" [disabled]="guardandoEdicion()"
+                    (click)="confirmandoBaja.set(false)">No, volver</button>
+                <button type="button" class="btn-primario" [disabled]="guardandoEdicion()"
+                    (click)="cambiarEstado(u, false)">Sí, dar de baja</button>
+            </div>
+            } @else {
+            <button type="button" class="btn-baja" (click)="confirmandoBaja.set(true)">Dar de baja</button>
+            }
+        </div>
+
     </div>
 </div>
 }
