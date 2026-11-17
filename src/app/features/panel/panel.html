@@ -1,58 +1,66 @@
 <main class="resumen">
-    <header class="cabecera">
-        <h1>Resumen</h1>
-        <p class="subtitulo">Campaña del Kilo {{ anio }} · en directo</p>
-    </header>
+  <header class="cabecera">
+    <h1>Resumen</h1>
+    <p class="subtitulo">Campaña del Kilo {{ anio }} · en directo</p>
+    <a class="enlace-categorias" routerLink="/categorias">
+      <i class="bi bi-tags"></i> Categorías
+    </a>
+  </header>
 
-    <section class="cifras">
-        <div class="cifra">
-            <span class="cifra__valor cifra__valor--destacado">{{ cargando() ? '–' : kgTotalesTexto() }}</span>
-            <span class="cifra__etiqueta">kg totales</span>
-        </div>
-        <div class="cifra">
-            <span class="cifra__valor">{{ cargando() ? '–' : totalCajas() }}</span>
-            <span class="cifra__etiqueta">bolsas</span>
-        </div>
-        <div class="cifra">
-            <span class="cifra__valor">{{ cargando() ? '–' : abiertas() }}</span>
-            <span class="cifra__etiqueta">abiertas</span>
-        </div>
-    </section>
+  <section class="cifras">
+    <div class="cifra">
+      <span class="cifra__valor cifra__valor--destacado">{{
+        cargando() ? '–' : kgTotalesTexto()
+      }}</span>
+      <span class="cifra__etiqueta">kg totales</span>
+    </div>
+    <div class="cifra">
+      <span class="cifra__valor">{{ cargando() ? '–' : totalCajas() }}</span>
+      <span class="cifra__etiqueta">bolsas</span>
+    </div>
+    <div class="cifra">
+      <span class="cifra__valor">{{ cargando() ? '–' : abiertas() }}</span>
+      <span class="cifra__etiqueta">abiertas</span>
+    </div>
+  </section>
 
-    <section class="tarjeta">
-        <h2 class="tarjeta__titulo">Bolsas por estado</h2>
-        <div class="barra" role="img" aria-label="Cajas por estado">
-            @for (tramo of tramos(); track tramo.clase) {
-            <span [class]="'barra__tramo barra__tramo--' + tramo.clase" [style.width.%]="tramo.porcentaje"></span>
-            }
-        </div>
-        <ul class="leyenda">
-            @for (tramo of tramos(); track tramo.clase) {
-            <li class="leyenda__fila">
-                <span [class]="'punto punto--' + tramo.clase"></span>
-                <span class="leyenda__etiqueta">{{ tramo.etiqueta }}</span>
-                <span class="leyenda__cantidad">{{ tramo.cantidad }}</span>
-            </li>
-            }
-        </ul>
-    </section>
+  <section class="tarjeta">
+    <h2 class="tarjeta__titulo">Bolsas por estado</h2>
+    <div class="barra" role="img" aria-label="Cajas por estado">
+      @for (tramo of tramos(); track tramo.clase) {
+        <span
+          [class]="'barra__tramo barra__tramo--' + tramo.clase"
+          [style.width.%]="tramo.porcentaje"
+        ></span>
+      }
+    </div>
+    <ul class="leyenda">
+      @for (tramo of tramos(); track tramo.clase) {
+        <li class="leyenda__fila">
+          <span [class]="'punto punto--' + tramo.clase"></span>
+          <span class="leyenda__etiqueta">{{ tramo.etiqueta }}</span>
+          <span class="leyenda__cantidad">{{ tramo.cantidad }}</span>
+        </li>
+      }
+    </ul>
+  </section>
 
-    <section class="tarjeta">
-        <h2 class="tarjeta__titulo">Kg por entidades</h2>
-        <ul class="filas">
-            @for (fila of filasAsociaciones(); track fila.id) {
-            <li class="fila">
-                <div class="fila__cabecera">
-                    <span class="fila__nombre">{{ fila.nombre }}</span>
-                    <span class="fila__kg">{{ fila.kgTexto }}</span>
-                </div>
-                <div class="fila__pista">
-                    <div class="fila__relleno" [style.width.%]="fila.porcentaje"></div>
-                </div>
-            </li>
-            } @empty {
-            <li class="vacio">Aún no hay entidades.</li>
-            }
-        </ul>
-    </section>
+  <section class="tarjeta">
+    <h2 class="tarjeta__titulo">Kg por entidades</h2>
+    <ul class="filas">
+      @for (fila of filasAsociaciones(); track fila.id) {
+        <li class="fila">
+          <div class="fila__cabecera">
+            <span class="fila__nombre">{{ fila.nombre }}</span>
+            <span class="fila__kg">{{ fila.kgTexto }}</span>
+          </div>
+          <div class="fila__pista">
+            <div class="fila__relleno" [style.width.%]="fila.porcentaje"></div>
+          </div>
+        </li>
+      } @empty {
+        <li class="vacio">Aún no hay entidades.</li>
+      }
+    </ul>
+  </section>
 </main>

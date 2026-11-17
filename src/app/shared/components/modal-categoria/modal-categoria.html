@@ -1,0 +1,78 @@
+<div class="capa" (click)="cerrar()">
+  <section
+    class="modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="titulo-modal-categoria"
+    (click)="$event.stopPropagation()"
+  >
+    <h2 id="titulo-modal-categoria" class="modal-titulo">Nueva categoría</h2>
+
+    <div class="vista" [style.background]="color()">
+      <span class="vista__codigo">{{ vistaCodigo() }}</span>
+      <span class="vista__nombre">{{ vistaNombre() }}</span>
+    </div>
+
+    <form class="formulario" (submit)="$event.preventDefault(); enviar()" novalidate>
+      <label class="campo">
+        <span class="campo-etiqueta">Nombre</span>
+        <input
+          #campoNombre
+          type="text"
+          autocomplete="off"
+          placeholder="Ej.: aceite"
+          [value]="nombre()"
+          [class.invalido]="errorNombre()"
+          [disabled]="guardando()"
+          (input)="nombre.set(campoNombre.value)"
+        />
+      </label>
+      @if (errorNombre(); as error) {
+        <p class="error" role="alert">{{ error }}</p>
+      }
+
+      <label class="campo">
+        <span class="campo-etiqueta">Código QR</span>
+        <input
+          #campoCodigo
+          type="text"
+          autocomplete="off"
+          maxlength="4"
+          placeholder="Ej.: AC"
+          class="mayusculas"
+          [value]="codigo()"
+          [class.invalido]="errorCodigo()"
+          [disabled]="guardando()"
+          (input)="codigo.set(campoCodigo.value)"
+        />
+      </label>
+      @if (errorCodigo(); as error) {
+        <p class="error" role="alert">{{ error }}</p>
+      }
+
+      <label class="campo campo--color">
+        <span class="campo-etiqueta">Color</span>
+        <input
+          #campoColor
+          type="color"
+          [value]="color()"
+          [disabled]="guardando()"
+          (input)="color.set(campoColor.value)"
+        />
+      </label>
+
+      @if (errorExterno(); as error) {
+        <p class="error" role="alert">{{ error }}</p>
+      }
+
+      <div class="acciones">
+        <button type="submit" class="boton primario" [disabled]="guardando()">
+          {{ guardando() ? 'Creando…' : 'Crear categoría' }}
+        </button>
+        <button type="button" class="boton secundario" [disabled]="guardando()" (click)="cerrar()">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </section>
+</div>
