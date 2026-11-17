@@ -5,10 +5,12 @@ import {
   addDoc,
   collection,
   collectionData,
+  doc,
   Firestore,
   getDocs,
   orderBy,
   query,
+  updateDoc,
   where,
 } from '@angular/fire/firestore';
 import { QrInvalidoError } from '../errors/qr-invalid-error';
@@ -76,6 +78,24 @@ export class CategoriasService {
       if (!mismoCodigo.empty) throw new CategoriaDuplicadaError('codigoQr');
 
       await addDoc(categorias, { nombre, codigoQr, color: datos.color, activa: true });
+    });
+  }
+
+  /** A7: cambia SOLO el nombre de una categoría (solo admin; las rules lo vuelven a comprobar).
+   *  Las bolsas guardan categoriaId, no el nombre, así que el cambio se ve solo en todas.
+   *  Lanza CategoriaDuplicadaError si OTRA categoría ya tiene ese nombre. */
+  async editarNombre(id: string, nombreNuevo: string): Promise<void> {
+    const nombre = nombreNuevo.trim().replace(/\s+/g, ' ').toLowerCase();
+    if (!nombre) throw new Error('El nombre es obligatorio');
+
+    return runInInjectionContext(this.injector, async () => {
+      const categorias = collection(this.firestore, 'categorias');
+
+      const mismoNombre = await getDocs(query(categorias, where('nombre', '==', nombre)));
+      // Si la única que coincide es ella misma, no es un duplicado
+      if (mismoNombre.docs.some((d) => d.id !== id)) throw new CategoriaDuplicadaError('nombre');
+
+      await updateDoc(doc(this.firestore, 'categorias', id), { nombre });
     });
   }
 }

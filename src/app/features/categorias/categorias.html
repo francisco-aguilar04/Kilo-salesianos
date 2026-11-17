@@ -1,39 +1,55 @@
 <main class="pantalla">
-    <header class="cabecera">
-        <h1>Categorías</h1>
-        @if (categorias(); as lista) {
-        <span class="contador">{{ lista.length }}</span>
-        }
-    </header>
-
-    @if (auth.isAdmin()) {
-    <div class="barra">
-        <button type="button" class="boton primario" (click)="abrirModal()">
-            <i class="bi bi-plus-lg"></i> Nueva categoría
-        </button>
-    </div>
-    }
-
+  <header class="cabecera">
+    <h1>Categorías</h1>
     @if (categorias(); as lista) {
-    <ul class="lista">
-        @for (c of lista; track c.id) {
-        <li class="tarjeta">
-            <span class="codigo" [style.background]="c.color">{{ c.codigoQr }}</span>
-            <h2 class="nombre">{{ c.nombre }}</h2>
-            @if (!c.activa) {
-            <span class="inactiva">Inactiva</span>
-            }
-        </li>
-        } @empty {
-        <p class="vacio">No hay categorías todavía.</p>
-        }
-    </ul>
-    } @else {
-    <p class="vacio">Cargando…</p>
+      <span class="contador">{{ lista.length }}</span>
     }
+  </header>
+
+  @if (auth.isAdmin()) {
+    <div class="barra">
+      <button type="button" class="boton primario" (click)="abrirModal()">
+        <i class="bi bi-plus-lg"></i> Nueva categoría
+      </button>
+    </div>
+  }
+
+  @if (categorias(); as lista) {
+    <ul class="lista">
+      @for (c of lista; track c.id) {
+        <li class="tarjeta">
+          <span class="codigo" [style.background]="c.color">{{ c.codigoQr }}</span>
+          <h2 class="nombre">{{ c.nombre }}</h2>
+          @if (!c.activa) {
+            <span class="inactiva">Inactiva</span>
+          }
+          @if (auth.isAdmin()) {
+            <button
+              type="button"
+              class="editar"
+              (click)="abrirEdicion(c)"
+              aria-label="Editar categoría"
+            >
+              <i class="bi bi-pencil"></i>
+            </button>
+          }
+        </li>
+      } @empty {
+        <p class="vacio">No hay categorías todavía.</p>
+      }
+    </ul>
+  } @else {
+    <p class="vacio">Cargando…</p>
+  }
 </main>
 
 @if (auth.isAdmin() && modalAbierto()) {
-<app-modal-categoria [categorias]="categorias() ?? []" [guardando]="guardando()" [errorExterno]="errorModal()"
-    (guardar)="crear($event)" (cancelar)="cerrarModal()" />
+  <app-modal-categoria
+    [categorias]="categorias() ?? []"
+    [categoria]="categoriaEditando()"
+    [guardando]="guardando()"
+    [errorExterno]="errorModal()"
+    (guardar)="guardar($event)"
+    (cancelar)="cerrarModal()"
+  />
 }

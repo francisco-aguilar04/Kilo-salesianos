@@ -26,13 +26,24 @@ export class CategoriasComponent {
     { initialValue: null },
   );
 
-  // ---- A6: nueva categoría (solo admin) ----
+  // ---- A6 nueva / A7 editar (solo admin): el mismo modal para las dos cosas ----
   protected readonly modalAbierto = signal(false);
   protected readonly guardando = signal(false);
   protected readonly errorModal = signal<string | null>(null);
+  // A7: null = crear una nueva; una categoría = editar esa
+  protected readonly categoriaEditando = signal<Categoria | null>(null);
 
   protected abrirModal(): void {
     if (!this.auth.isAdmin()) return;
+    this.categoriaEditando.set(null);
+    this.errorModal.set(null);
+    this.modalAbierto.set(true);
+  }
+
+  // A7
+  protected abrirEdicion(categoria: Categoria): void {
+    if (!this.auth.isAdmin()) return;
+    this.categoriaEditando.set(categoria);
     this.errorModal.set(null);
     this.modalAbierto.set(true);
   }
@@ -42,20 +53,36 @@ export class CategoriasComponent {
     this.modalAbierto.set(false);
   }
 
-  protected async crear(datos: NuevaCategoria): Promise<void> {
+  // A7: el modal emite lo mismo en los dos modos; aquí decidimos si creamos o editamos
+  protected async guardar(datos: NuevaCategoria): Promise<void> {
     if (!this.auth.isAdmin() || this.guardando()) return;
+
+    const editando = this.categoriaEditando();
+    // Si no ha cambiado el nombre, no hace falta escribir en Firestore
+    if (editando && editando.nombre === datos.nombre) {
+      this.modalAbierto.set(false);
+      return;
+    }
 
     this.errorModal.set(null);
     this.guardando.set(true);
     try {
-      await this.categoriasService.crearCategoria(datos);
-      this.modalAbierto.set(false); // la tarjeta nueva aparece sola (tiempo real)
+      if (editando) {
+        await this.categoriasService.editarNombre(editando.id, datos.nombre);
+      } else {
+        await this.categoriasService.crearCategoria(datos);
+      }
+      this.modalAbierto.set(false); // la lista se actualiza sola (tiempo real)
     } catch (e) {
       if (e instanceof CategoriaDuplicadaError) {
         this.errorModal.set(e.message);
       } else {
         console.error(e);
-        this.errorModal.set('No se ha podido crear la categoría. Inténtalo de nuevo');
+        this.errorModal.set(
+          editando
+            ? 'No se ha podido guardar el cambio. Inténtalo de nuevo'
+            : 'No se ha podido crear la categoría. Inténtalo de nuevo',
+        );
       }
     } finally {
       this.guardando.set(false);

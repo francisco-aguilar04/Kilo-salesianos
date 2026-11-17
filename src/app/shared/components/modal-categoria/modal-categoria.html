@@ -6,7 +6,7 @@
     aria-labelledby="titulo-modal-categoria"
     (click)="$event.stopPropagation()"
   >
-    <h2 id="titulo-modal-categoria" class="modal-titulo">Nueva categoría</h2>
+    <h2 id="titulo-modal-categoria" class="modal-titulo">{{ titulo() }}</h2>
 
     <div class="vista" [style.background]="color()">
       <span class="vista__codigo">{{ vistaCodigo() }}</span>
@@ -31,6 +31,7 @@
         <p class="error" role="alert">{{ error }}</p>
       }
 
+      <!-- A7: al editar solo se cambia el nombre; código y color se ven pero bloqueados -->
       <label class="campo">
         <span class="campo-etiqueta">Código QR</span>
         <input
@@ -42,7 +43,7 @@
           class="mayusculas"
           [value]="codigo()"
           [class.invalido]="errorCodigo()"
-          [disabled]="guardando()"
+          [disabled]="guardando() || editando()"
           (input)="codigo.set(campoCodigo.value)"
         />
       </label>
@@ -56,7 +57,7 @@
           #campoColor
           type="color"
           [value]="color()"
-          [disabled]="guardando()"
+          [disabled]="guardando() || editando()"
           (input)="color.set(campoColor.value)"
         />
       </label>
@@ -67,7 +68,7 @@
 
       <div class="acciones">
         <button type="submit" class="boton primario" [disabled]="guardando()">
-          {{ guardando() ? 'Creando…' : 'Crear categoría' }}
+          {{ textoBoton() }}
         </button>
         <button type="button" class="boton secundario" [disabled]="guardando()" (click)="cerrar()">
           Cancelar
