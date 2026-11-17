@@ -100,4 +100,11 @@
     background: #fde8e8;
   }
 }
- 
+// A5: cambiar no borra nada, así que va en azul y no en rojo
+.accion-tarjeta--cambiar {
+  color: #1a56db;
+
+  &:hover {
+    background: #e8f0fe;
+  }
+}

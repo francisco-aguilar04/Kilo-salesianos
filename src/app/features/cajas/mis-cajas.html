@@ -9,6 +9,17 @@
   />
 }
 
+@if (cajaPorCambiar(); as caja) {
+  <app-hoja-asignar-caja
+    [caja]="caja"
+    [asociaciones]="otrasEntidades()"
+    [entidadActual]="nombreAsociacionDe(caja) ?? 'otra entidad'"
+    [guardando]="cambiandoEntidad()"
+    (asignar)="confirmarCambio($event)"
+    (cancelar)="cancelarCambio()"
+  />
+}
+
 @if (aviso(); as a) {
   <app-aviso class="aviso-flotante" [tipo]="a.tipo" [titulo]="a.titulo" [mensaje]="a.mensaje" />
 }
@@ -65,6 +76,13 @@
           [categoria]="categoriaDe(caja)"
           [asociacion]="nombreAsociacionDe(caja)"
         >
+          <button
+            type="button"
+            class="accion-tarjeta accion-tarjeta--cambiar"
+            (click)="abrirCambio(caja)"
+          >
+            <i class="bi bi-arrow-left-right"></i> Cambiar entidad
+          </button>
           <button type="button" class="accion-tarjeta" (click)="quitarAsociacion(caja)">
             <i class="bi bi-x-circle"></i> Quitar asociación
           </button>

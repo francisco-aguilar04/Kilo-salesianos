@@ -116,6 +116,48 @@ export class MisCajasComponent {
       });
     }
   }
+  // ---- A5: cambiar la entidad de una bolsa asignada ----
+  protected readonly cajaPorCambiar = signal<Caja | null>(null);
+  protected readonly cambiandoEntidad = signal(false);
+
+  // Evitar duplicados: en la hoja no aparece la entidad en la que ya está
+  protected readonly otrasEntidades = computed(() => {
+    const actual = this.cajaPorCambiar()?.asociacionId;
+    return this.asociaciones().filter((a) => a.id !== actual);
+  });
+
+  protected abrirCambio(caja: Caja): void {
+    this.cajaPorCambiar.set(caja);
+  }
+
+  protected cancelarCambio(): void {
+    if (!this.cambiandoEntidad()) this.cajaPorCambiar.set(null);
+  }
+
+  protected async confirmarCambio(nueva: Asociacion): Promise<void> {
+    const caja = this.cajaPorCambiar();
+    if (!caja || this.cambiandoEntidad()) return;
+
+    this.cambiandoEntidad.set(true);
+    try {
+      await this.cajasService.cambiarAsociacion(caja.id, nueva.id);
+      this.mostrarAviso({
+        tipo: 'exito',
+        titulo: 'Entidad cambiada',
+        mensaje: `${caja.codigo} → ${nueva.nombre}`,
+      });
+    } catch (e) {
+      console.error(e);
+      this.mostrarAviso({
+        tipo: 'error',
+        titulo: 'No se ha podido cambiar la entidad',
+        mensaje: 'Inténtalo de nuevo',
+      });
+    } finally {
+      this.cambiandoEntidad.set(false);
+      this.cajaPorCambiar.set(null);
+    }
+  }
 
   protected abrirAsignacion(caja: Caja): void {
     this.cajaPorAsignar.set(caja);
