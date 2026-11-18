@@ -17,6 +17,15 @@ import { Aviso, TipoAviso } from '../../shared/components/aviso/aviso';
 import { HojaAsignarCaja } from '../hoja-asignar-caja/hoja-asignar-caja';
 import { EliminadoPipe } from '../../shared/pipes/eliminado-pipe/eliminado-pipe';
 
+/** Una fila del resumen de kilos por categoría. */
+interface ResumenCategoria {
+  clave: string; // para el track del @for
+  nombre: string | null | undefined; // null = Eliminado (pipe), undefined = cargando
+  color: string;
+  kg: number;
+  bolsas: number;
+}
+
 @Component({
   selector: 'app-asociacion-detalle',
   standalone: true,
@@ -83,6 +92,35 @@ export class AsociacionDetalleComponent {
   protected readonly totalKg = computed(() =>
     (this.cajas() ?? []).reduce((suma, c) => suma + (c.pesoKg ?? 0), 0),
   );
+
+  // ---- Kilos y bolsas por categoría ----
+  // Agrupa las bolsas de esta entidad por categoría y suma sus kg.
+  // Las de categoría borrada (categoriaId null) van juntas en el grupo "Eliminado".
+  protected readonly kilosPorCategoria = computed<ResumenCategoria[]>(() => {
+    const grupos = new Map<string | null, ResumenCategoria>();
+
+    for (const caja of this.cajas() ?? []) {
+      const clave = caja.categoriaId; // null = Eliminado
+      let grupo = grupos.get(clave);
+      if (!grupo) {
+        const categoria = clave === null ? undefined : this.categoriaPorId().get(clave);
+        grupo = {
+          clave: clave ?? 'eliminado',
+          nombre: clave === null ? null : categoria?.nombre,
+          color: categoria?.color ?? '#9ca3af', // gris para "Eliminado"
+          kg: 0,
+          bolsas: 0,
+        };
+        grupos.set(clave, grupo);
+      }
+      grupo.kg += caja.pesoKg ?? 0;
+      grupo.bolsas++;
+    }
+
+    return [...grupos.values()]
+      .map((g) => ({ ...g, kg: Math.round(g.kg * 10) / 10 })) // evita 10.4999999
+      .sort((a, b) => b.kg - a.kg); // de más a menos kilos
+  });
 
   /** A11: null = categoría borrada ("Eliminado"); undefined = aún cargando. */
   protected nombreCategoriaDe(caja: Caja): string | null | undefined {

@@ -215,3 +215,65 @@
   right: 1rem;
   z-index: 30;
 }
+
+// ---- Kilos y bolsas por categoría ----
+.por-categoria {
+  margin: 0 0 1.75rem;
+  padding: 1rem 1.1rem;
+  border-radius: 1rem;
+  background: #f3f4f6; // el gris de las cifras de arriba
+}
+
+.por-categoria__titulo {
+  margin: 0 0 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.por-categoria__barra {
+  display: flex;
+  gap: 2px; // separación blanca entre tramos
+  height: 0.75rem;
+  border-radius: 999px;
+  overflow: hidden; // redondea los extremos del primer y último tramo
+
+  span {
+    flex-basis: 0; // el ancho lo decide solo flex-grow (= kg)
+    min-width: 4px; // una categoría con muy pocos kg sigue viéndose
+  }
+}
+
+.por-categoria__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.85rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip-categoria {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 0.9rem;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.chip-categoria__punto {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+}
+
+.chip-categoria__bolsas {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
